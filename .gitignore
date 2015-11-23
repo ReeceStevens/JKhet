@@ -1,0 +1,6 @@
+*.class
+*.log
+src/.metadata/*
+.metadata/*
+/bin/
+*.swp
