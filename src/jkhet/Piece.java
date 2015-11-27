@@ -113,9 +113,6 @@ public abstract class Piece {
 			// For all pieces except Djeds, collision = failed move.
 			return -1;
 		}
-
-		
-			
 		return 0;	
 	}
 
@@ -126,14 +123,23 @@ public abstract class Piece {
 	public void rotate(boolean dir){
 		if (dir) {
 			/* CW */
-			rot = (rot + 1) % 8;
+			rot = (rot + 1) % 4;
 		} else {
 			/* CCW */
 			// TODO: check Java's mod definition, make sure this behaves 
 			// the way you are expecting.
-			rot = (rot - 1) % 8;
+			rot = (rot - 1) % 4;
 		}
 	}
+
+	/**
+	 * reflectDirection() -- determines output direction of the laser upon a collision.
+	 *
+	 * @param p		The piece being hit by the laser
+	 * @param laser_direction 	The direction of entry for the laser, facing inward
+	 * @return 		-1 if not a mirrored side; else, return exit direction of laser (0-7)
+	 */
+	public abstract int reflectDirection(Piece p, int laser_direction);
 
 	public static ArrayList<Piece> board_pieces; 
 
