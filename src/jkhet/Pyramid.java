@@ -2,13 +2,16 @@ package jkhet;
 
 public class Pyramid extends Piece {
 
+	public String toString() {
+		return "P";
+	}
+
 	// Void Constructor
 	public Pyramid(int x, int y, int player, int rot) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;	
 		this.player = player;
-		board_pieces.add(this);
 	}	
 
 	/**

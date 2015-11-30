@@ -60,6 +60,7 @@ public abstract class Piece {
 		return false;
 	}
 
+	public String toString() { return ""; }
 
 	/**
 	 * Move(int dir) -- move a piece 
@@ -141,7 +142,7 @@ public abstract class Piece {
 	 */
 	public abstract int reflectDirection(Piece p, int laser_direction);
 
-	public static ArrayList<Piece> board_pieces; 
+	public static ArrayList<Piece> board_pieces = new ArrayList<>();
 
 	// Position and Rotation state.	
 	public int player;
