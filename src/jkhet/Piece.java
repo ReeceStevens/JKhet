@@ -349,7 +349,6 @@ public abstract class Piece {
 	 * @param mode 		The game mode desired. 
 	 */
 	public static void setupBoard(SetupType mode){
-		// TODO: finish inputing the other game setups
 		clearBoard();
 		String ph = "Pharaoh";
 		String p = "Pyramid";

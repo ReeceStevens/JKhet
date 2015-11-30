@@ -158,7 +158,15 @@ public class Controller {
 					}
 				}
 				if (!piece_set) {
-					System.out.print("   ");
+					String output = "";
+					if ((j == 1) || ((j == Params.BOARD_WIDTH-1) && ((i == 1) || (i == Params.BOARD_HEIGHT))) ){
+						output += (char)27 + "[41m";	
+					}
+					else if ((j == Params.BOARD_WIDTH) || ((j == 2) && ((i == 1) || i == Params.BOARD_HEIGHT))) {
+						output += (char)27 + "[44m";
+					}
+					output += "   " + (char)27 + "[0m";
+					System.out.print(output);
 				}
 			}
 			System.out.println("");
