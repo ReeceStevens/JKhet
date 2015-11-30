@@ -2,8 +2,34 @@ package jkhet;
 
 public class Pyramid extends Piece {
 
+	// A rough approximation on the console of the two 
+	// mirror angles (as best as unicode can provide)
 	public String toString() {
-		return "P";
+		String ret = "";
+		if (player == 1) {
+			ret = (char)27 + "[36m";
+		}
+		else {
+			ret = (char)27 + "[31m";
+		}
+		switch(rot) {
+			case 0:
+				ret = ret+"L";
+				break;
+			case 1:
+				ret = ret+"r";
+				break;
+			case 2:
+				ret = ret+"¬";
+				break;
+			case 3:
+				ret =  ret+"j";
+				break;
+			default: // Should never be reached
+				ret = ret+"P";
+		}
+		ret += (char)27 + "[0m";
+		return ret;
 	}
 
 	// Void Constructor
@@ -17,18 +43,19 @@ public class Pyramid extends Piece {
 	/**
 	 * reflectDirection() -- determines output direction of the laser upon a collision.
 	 *
-	 * @param p		The piece being hit by the laser
 	 * @param laser_direction 	The direction of entry for the laser, facing inward
-	 * @return 		-1 if not a mirrored side; else, return exit direction of laser (0-3)
+	 * @return 		-1 if not a mirrored side and dead;
+	 * 				-2 if not a mirrored side but alive;
+	 * 				else, return exit direction of laser (0-3)
 	 */
-	public int reflectDirection(Piece p, int laser_direction) {
-		int relative_side = (laser_direction + rot) % 4;
+	public int reflectDirection(int laser_direction) {
+		int relative_side = Piece.mod((laser_direction - rot) , 4);
 		// Check if the laser hit a mirror.
 		if (relative_side == 0) {
-			return (1 - rot) % 4;
+			return Piece.mod((1+rot) , 4);
 		}
 		if (relative_side == 1) {
-			return rot % 4;
+			return Piece.mod(rot , 4);
 		}
 		else {
 			// Impacted by laser on non-mirrored side. Piece is dead.

@@ -7,6 +7,25 @@ import java.util.ArrayList;
  */
 public abstract class Piece {
 
+	/**
+	 * mod(a,b) -- helper function for a more intuitive modulo
+	 * @param a		Input number
+	 * @param b		Base
+	 * @return 		Modulus of a in base b
+	 */
+	public static int mod(int a, int b) {
+		if (b <= 0) { return -1; } // INVALID CASE
+		else if (a == 0) { return 0; }
+		else if ((a < b) && (a > 0)) { return a; }
+		else if (a > 0) {
+			int c = a / b;
+			return a - (c*b);
+		}
+		else {
+			int c = (-a)/b;
+			return (a + (b*(c+1)))%5;
+		}
+	}
 
 	private Integer[] new_pos(int dir, int x, int y) {
 		int new_x = x;
@@ -124,25 +143,51 @@ public abstract class Piece {
 	public void rotate(boolean dir){
 		if (dir) {
 			/* CW */
-			rot = (rot + 1) % 4;
+			rot = mod((rot + 1) , 4);
 		} else {
 			/* CCW */
-			// TODO: check Java's mod definition, make sure this behaves 
-			// the way you are expecting.
-			rot = (rot - 1) % 4;
+			rot = mod((rot - 1) , 4);
 		}
 	}
 
 	/**
 	 * reflectDirection() -- determines output direction of the laser upon a collision.
 	 *
-	 * @param p		The piece being hit by the laser
 	 * @param laser_direction 	The direction of entry for the laser, facing inward
-	 * @return 		-1 if not a mirrored side; else, return exit direction of laser (0-7)
+	 * @return 		-1 if not a mirrored side and dead;
+	 * 				-2 if not a mirrored side but alive;
+	 * 				else, return exit direction of laser (0-3)
 	 */
-	public abstract int reflectDirection(Piece p, int laser_direction);
+	public abstract int reflectDirection(int laser_direction);
 
 	public static ArrayList<Piece> board_pieces = new ArrayList<>();
+
+	public enum SetupType {
+		CLASSIC,
+		DYNASTY,
+		IMHOTEP;
+	}
+	
+	/**
+	 * setupBoard(mode) -- Clears board and sets up for another game
+	 * in the selected mode.
+	 *
+	 * @param mode 		The game mode desired. 
+	 */
+	public static void setupBoard(SetupType mode){
+		switch(mode) {
+			case CLASSIC:
+				// setup classic
+				
+				break;
+			case DYNASTY:
+				// setup dynasty 
+				break;
+			case IMHOTEP:
+				// setup imhotep
+				break;
+		}	
+	}
 
 	// Position and Rotation state.	
 	public int player;
