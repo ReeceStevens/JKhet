@@ -38,13 +38,14 @@ public class Djed extends Piece {
 	 * reflectDirection() -- determines output direction of the laser upon a collision.
 	 * Notable for Djeds is that there are only two effective rotational states.
 	 *
-	 * @param laser_direction 	The direction of entry for the laser, facing inward
+	 * @param laser_direction 	The direction the laser is currently moving 
 	 * @return 		-1 if not a mirrored side and dead;
 	 * 				-2 if not a mirrored side but alive;
 	 * 				else, return exit direction of laser (0-3)
 	 */
 	public int reflectDirection(int laser_direction) {
 		boolean a = (rot == 0) || (rot == 2);
+		laser_direction = Piece.mod(laser_direction+2, 4);
 		if (a) {
 			switch(laser_direction) {
 				case 0:

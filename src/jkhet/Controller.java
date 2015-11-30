@@ -23,6 +23,34 @@ public class Controller {
 			String [] arguments = commands.split(" ");
 			switch (arguments[0]) {
 				case "move":
+					if (arguments.length != 4){
+						System.out.println("Invalid command. Proper syntax is: move <x> <y> <dir>");
+						continue;
+					}
+					// Check if x and y are valid
+					// (i.e. it's on the board, there's a piece, and it's that player's piece
+					int x = 0;
+					int y = 0; 
+					int dir = 0;
+					try{
+						x = Integer.parseInt(arguments[1]);
+						y = Integer.parseInt(arguments[2]);
+						dir = Integer.parseInt(arguments[3]);
+					} catch (NumberFormatException e) {
+						System.out.println("Invalid command. Proper syntax is: move <x> <y> <dir>");
+						continue;
+					}
+
+					if ((x < 0) || (x > Params.BOARD_WIDTH) || (y < 0) || (y > Params.BOARD_HEIGHT)) { 
+						System.out.println("That position is invalid. Please try another position.");
+						continue;			
+					}
+					try{
+						Piece.boardMove(x,y,dir,turn);
+					} catch (InvalidMoveException e) {
+						e.printStackTrace();
+						continue;
+					}
 					turn = Piece.mod((turn + 1),2);
 					Piece.fireLaser(1);
 					break;

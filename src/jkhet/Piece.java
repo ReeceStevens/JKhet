@@ -128,13 +128,29 @@ public abstract class Piece {
 				return -1;
 			}
 		}
-		if (isOccupied(newxy[0], newxy[1]) != null) {
+		Piece a = isOccupied(newxy[0], newxy[1]);
+		if (a != null) {
 			// Collision behavior depends on the piece
-			// TODO: add djed swapping action
-			// For all pieces except Djeds, collision = failed move.
-			return -1;
+			if (this instanceof Djed) {
+				swap(this,a);					
+			}
+			else {
+				return -1;
+			}
 		}
 		return 0;	
+	}
+
+	/**
+	 * swap(a,b) -- swap the locations of two pieces on the board
+	 */	
+	private void swap(Piece a, Piece b) {
+		int tmp_x = a.x;
+		int tmp_y = a.y;
+		a.x = b.x;
+		a.y = b.y;
+		b.x = tmp_x;
+		b.y = tmp_y;
 	}
 
 	/**
@@ -149,6 +165,24 @@ public abstract class Piece {
 			/* CCW */
 			rot = mod((rot - 1) , 4);
 		}
+	}
+
+	/**
+	 * boardMove(x,y,move_dir,player) -- initiate a move on the board and report 
+	 * back if it is illegal.
+	 * @param x		X location of piece to be moved.
+	 * @param y 	Y location of piece to be moved.
+	 * @param move_dir Direction the piece is to be moving (0-7)
+	 * @param player 	Player initiating the move
+	 * @return 		Success (0) or failure (-1)
+	 */
+	public static int boardMove(int x, int y, int move_dir, int player) throws InvalidMoveException {
+		Piece a = isOccupied(x,y);
+		// Piece doesn't exist on board
+		if (a == null) { throw new InvalidMoveException("Piece doesn't exist."); }
+		// Piece isn't the player's
+		if (a.player != player) { throw new InvalidMoveException("This piece doesn't belong to you."); }
+		return a.move(move_dir);	
 	}
 
 	/**
