@@ -3,6 +3,11 @@ package jkhet;
 // TODO: allow the djed only to swap places with another piece in its move
 
 public class Djed extends Piece {
+	
+	// Void constructor
+	public Djed() {
+	}
+
 	public Djed (int x, int y, int player, int rot) {
 		this.x = x; 
 		this.y = y;

@@ -32,7 +32,10 @@ public class Pyramid extends Piece {
 		return ret;
 	}
 
-	// Void Constructor
+	// Void constructor
+	public Pyramid() {
+	}
+
 	public Pyramid(int x, int y, int player, int rot) {
 		this.x = x;
 		this.y = y;

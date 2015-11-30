@@ -1,9 +1,17 @@
 package jkhet;
 
-// TODO: Split the obelisk in a turn? figure out how to implement that. 
+public class Pharaoh extends Piece {
 
-public class Obelisk extends Piece {
-	private boolean stacked = true;
+	// Void constructor
+	public Pharaoh() {
+	}	
+
+	public Pharaoh (int x, int y, int player, int rot) {
+		this.x = x; 
+		this.y = y;
+		this.rot = rot;
+		this.player = player;
+	}
 
 	public String toString() {
 		String ret = "";
@@ -13,22 +21,8 @@ public class Obelisk extends Piece {
 		else {
 			ret = (char)27 + "[31m";
 		}
-		if (stacked) {
-			ret += "•";
-		} else { ret += "º"; }
-		ret += (char)27 + "[0m";
+		ret += "§" + (char)27 + "[0m";
 		return ret;
-	}
-
-	// Void constructor
-	public Obelisk() {
-	}
-
-	public Obelisk (int x, int y, int player, int rot) {
-		this.x = x; 
-		this.y = y;
-		this.rot = rot;
-		this.player = player;
 	}
 
 	/**
@@ -40,8 +34,6 @@ public class Obelisk extends Piece {
 	 * 				else, return exit direction of laser (0-3)
 	 */
 	public int reflectDirection(int laser_direction) {
-		if (stacked) { stacked = false; return -2; }
-		else { return -1;}
+		return -1;
 	}
-
 }

@@ -1,27 +1,43 @@
 package jkhet;
 
+import java.util.Scanner;
+
 public class Controller {
 	public static void main(String [] args) {
-		showBoard();		
-		Piece a = new Pyramid(0,0,1,0);
-		Piece.board_pieces.add(a);
-		Piece b = new Pyramid(1,1,2,0);
-		Piece.board_pieces.add(b);
-		Piece c = new Pyramid(2,2,1,0);
-		Piece.board_pieces.add(c);
-		Piece d = new Djed(3,3,1,0);
-		Piece.board_pieces.add(d);
-		Piece e = new Djed(3,5,2,1);
-		Piece.board_pieces.add(e);
-		Piece f = new Obelisk(1,7,1,0);
-		Piece.board_pieces.add(f);
-		showBoard();		
-		c.rotate(false);
-		Piece.board_pieces.remove(b);
-		showBoard();
-
+		cli();
 	}
 	
+	/**
+	 * cli() -- Initializes command line interface
+	 */	
+	public static void cli() {
+		System.out.println("Welcome to JKhet!");
+		System.out.print("Starting a new classic game...");
+		Piece.setupBoard(Piece.SetupType.CLASSIC);
+		System.out.print(" Done!\n");
+		showBoard();
+		Scanner k = new Scanner(System.in);
+		int turn = 1;
+		while(true) {
+			String commands = k.nextLine();
+			String [] arguments = commands.split(" ");
+			switch (arguments[0]) {
+				case "move":
+					turn = Piece.mod((turn + 1),2);
+					break;
+				case "rotate":
+					turn = Piece.mod((turn + 1),2);
+					break;
+				case "quit":
+					System.out.println("Thanks for playing!");
+					return;
+				default: 
+					System.out.println("Sorry, that's not a valid command.");	
+			}
+		}
+	}
+	
+
 	private static void showBoard() {
 		for (int i = 0; i < Params.BOARD_HEIGHT+2; i += 1) {
 			for (int j = 0; j < Params.BOARD_WIDTH+2; j += 1) {

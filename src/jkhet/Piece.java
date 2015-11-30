@@ -1,5 +1,6 @@
 package jkhet;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 /**
@@ -167,7 +168,42 @@ public abstract class Piece {
 		DYNASTY,
 		IMHOTEP;
 	}
-	
+
+	/**
+	 * clearBoard() -- remove all pieces currently on the board
+	 */
+	private static void clearBoard() {
+		board_pieces.clear();
+	}
+
+	/**
+	 * add(x,y,player,rot) -- add a specified piece to the board
+	 * @param x		X location on board
+	 * @param y 	Y location on board
+	 * @param player Player that owns the piece
+	 * @param rot 	Rotational state of the piece
+	 */
+	private static int add(String piece_type, int x, int y, int player, int rot) {
+		Class<?> ptype = null;
+		try{
+			piece_type = "jkhet." + piece_type;
+			ptype = Class.forName(piece_type);
+			Constructor<?> constr = null;
+			constr = ptype.getConstructor();
+			Object piece = null;
+			piece = constr.newInstance();			
+			((Piece) piece).x = x;
+			((Piece) piece).y = y;
+			((Piece) piece).player = player;
+			((Piece) piece).rot = rot;
+			board_pieces.add(((Piece) piece));
+		} catch(Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+		return 0;	
+	}
+
 	/**
 	 * setupBoard(mode) -- Clears board and sets up for another game
 	 * in the selected mode.
@@ -175,10 +211,47 @@ public abstract class Piece {
 	 * @param mode 		The game mode desired. 
 	 */
 	public static void setupBoard(SetupType mode){
+		// TODO: finish inputing the other game setups
+		clearBoard();
+		String ph = "Pharaoh";
+		String p = "Pyramid";
+		String o = "Obelisk";
+		String d = "Djed";
 		switch(mode) {
 			case CLASSIC:
 				// setup classic
-				
+				// row 0
+				add(o,4,0,2,0);	
+				add(ph,5,0,2,0);	
+				add(o,6,0,2,0);	
+				add(p,7,0,2,1);	
+				// row 1
+				add(p,2,1,2,2);
+				// row 2
+				add(p,3,2,1,3);
+				// row 3
+				add(p,0,3,2,0);
+				add(p,2,3,1,2);
+				add(d,4,3,2,0);
+				add(d,5,3,2,1);
+				add(p,7,3,2,1);
+				add(p,9,3,1,3);
+				// row 4
+				add(p,0,4,2,1);
+				add(p,2,4,1,3);
+				add(d,4,4,2,1);
+				add(d,5,4,2,0);
+				add(p,7,4,2,0);
+				add(p,9,4,1,2);
+				// row 5
+				add(p,6,5,2,1);
+				// row 6
+				add(p,7,6,1,0);
+				// row 7
+				add(p,2,7,1,3);
+				add(o,3,7,1,0);
+				add(ph,4,7,1,0);
+				add(o,5,7,1,0);				
 				break;
 			case DYNASTY:
 				// setup dynasty 
