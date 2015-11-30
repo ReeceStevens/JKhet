@@ -46,18 +46,19 @@ public class Pyramid extends Piece {
 	/**
 	 * reflectDirection() -- determines output direction of the laser upon a collision.
 	 *
-	 * @param laser_direction 	The direction of entry for the laser, facing inward
+	 * @param laser_direction 	The direction the laser is currently moving 
 	 * @return 		-1 if not a mirrored side and dead;
 	 * 				-2 if not a mirrored side but alive;
 	 * 				else, return exit direction of laser (0-3)
 	 */
 	public int reflectDirection(int laser_direction) {
+		laser_direction = Piece.mod(laser_direction+2,4);
 		int relative_side = Piece.mod((laser_direction - rot) , 4);
 		// Check if the laser hit a mirror.
 		if (relative_side == 0) {
 			return Piece.mod((1+rot) , 4);
 		}
-		if (relative_side == 1) {
+		else if (relative_side == 1) {
 			return Piece.mod(rot , 4);
 		}
 		else {
