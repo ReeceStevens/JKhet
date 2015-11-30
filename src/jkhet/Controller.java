@@ -24,12 +24,14 @@ public class Controller {
 			switch (arguments[0]) {
 				case "move":
 					turn = Piece.mod((turn + 1),2);
+					Piece.fireLaser(1);
 					break;
 				case "rotate":
 					turn = Piece.mod((turn + 1),2);
 					break;
 				case "quit":
 					System.out.println("Thanks for playing!");
+					k.close();
 					return;
 				default: 
 					System.out.println("Sorry, that's not a valid command.");	
@@ -41,8 +43,10 @@ public class Controller {
 	private static void showBoard() {
 		for (int i = 0; i < Params.BOARD_HEIGHT+2; i += 1) {
 			for (int j = 0; j < Params.BOARD_WIDTH+2; j += 1) {
-				if ((i == 0) || (i == Params.BOARD_HEIGHT+1)) { System.out.print("---"); continue; }
-				if ((j == 0) || (j == Params.BOARD_WIDTH+1)) { System.out.print(" | "); continue; }
+				if ((i == 0) || (i == Params.BOARD_HEIGHT+1)) { 
+						if ((j == 0) || (j == Params.BOARD_WIDTH+1)){ System.out.printf("---");continue;}
+						System.out.printf("-%d-",j-1); continue; }
+				if ((j == 0) || (j == Params.BOARD_WIDTH+1)) { System.out.printf(" %d ",i-1); continue; }
 				boolean piece_set = false;
 				for (Piece a : Piece.board_pieces) {
 					if ((a.x == j-1) && (a.y == i-1)){

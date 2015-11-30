@@ -70,14 +70,14 @@ public abstract class Piece {
 	 * a given location
 	 * @param x		X coordinate on board
 	 * @param y		Y coordinate on board
-	 * @return 		Space is occupied by a piece (true) or empty (false)
+	 * @return 		A reference to the piece at that location
 	 */
-	private boolean isOccupied(int x, int y) {
+	private static Piece isOccupied(int x, int y) {
 		// TODO: finish this function.
 		for (Piece a : board_pieces) {
-			if ((a.x == x) && (a.y == y)) { return true;}
+			if ((a.x == x) && (a.y == y)) { return a;}
 		}	
-		return false;
+		return null;
 	}
 
 	public String toString() { return ""; }
@@ -128,7 +128,7 @@ public abstract class Piece {
 				return -1;
 			}
 		}
-		if (isOccupied(newxy[0], newxy[1])) {
+		if (isOccupied(newxy[0], newxy[1]) != null) {
 			// Collision behavior depends on the piece
 			// TODO: add djed swapping action
 			// For all pieces except Djeds, collision = failed move.
@@ -167,6 +167,59 @@ public abstract class Piece {
 		CLASSIC,
 		DYNASTY,
 		IMHOTEP;
+	}
+
+	private static int fireLaserRecursive(int x, int y, int dir) {
+		// Base case 1: Hit a wall
+		// TODO: remove these debug statements
+		if ((x < 0) || (x > Params.BOARD_WIDTH)) { 
+				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
+				return -1;
+	   	}
+		if ((y < 0) || (y > Params.BOARD_HEIGHT)) { 
+				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
+				return -1;
+	   	}
+		// Base case 2: Hit a piece in a non-mirror location
+		Piece a = isOccupied(x,y);
+		int new_dir = -1;
+		if (a != null) {
+			new_dir = a.reflectDirection(dir);
+			if (new_dir == -1) {
+				// TODO: handle death? exception of obelisk?
+				// TODO: Remove this debug statement
+				System.out.printf("Piece at %d, %d was hit!\n", x,y);
+				return -1;
+			}
+		}
+		// Recursive step: find next laser location
+		if (new_dir == -1) { new_dir = dir; }
+		int ret = 0;
+		switch(new_dir){
+			case 0:
+				ret = fireLaserRecursive(x,y-1,new_dir);
+				break;
+			case 1:
+				ret = fireLaserRecursive(x+1,y,new_dir);
+				break;
+			case 2:
+				ret = fireLaserRecursive(x,y+1,new_dir);
+				break;
+			case 3:
+				ret = fireLaserRecursive(x-1,y,new_dir);
+				break;
+		}
+		if (ret == -1) { return -1; }
+		else { return 0; }
+	}
+
+	public static void fireLaser(int player) {
+		if (player == 1) {
+			fireLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
+		}
+		else {
+			fireLaserRecursive(0,0,2);
+		}
 	}
 
 	/**
