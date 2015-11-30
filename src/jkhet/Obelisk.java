@@ -3,7 +3,6 @@ package jkhet;
 // TODO: Split the obelisk in a turn? figure out how to implement that. 
 
 public class Obelisk extends Piece {
-	private boolean stacked = true;
 
 	public String toString() {
 		String ret = "";
@@ -13,7 +12,7 @@ public class Obelisk extends Piece {
 		else {
 			ret = (char)27 + "[31m";
 		}
-		if (stacked) {
+		if (health == 2) {
 			ret += "•";
 		} else { ret += "º"; }
 		ret += (char)27 + "[0m";
@@ -22,6 +21,7 @@ public class Obelisk extends Piece {
 
 	// Void constructor
 	public Obelisk() {
+		health = 2;
 	}
 
 	public Obelisk (int x, int y, int player, int rot) {
@@ -40,8 +40,7 @@ public class Obelisk extends Piece {
 	 * 				else, return exit direction of laser (0-3)
 	 */
 	public int reflectDirection(int laser_direction) {
-		if (stacked) { stacked = false; return -2; }
-		else { return -1;}
+		return -1;
 	}
 
 }

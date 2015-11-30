@@ -11,14 +11,16 @@ public class Controller {
 	 * cli() -- Initializes command line interface
 	 */	
 	public static void cli() {
+		Scanner k = new Scanner(System.in);
+		while(true) {
 		System.out.println("Welcome to JKhet!");
 		System.out.print("Starting a new classic game...");
 		Piece.setupBoard(Piece.SetupType.CLASSIC);
 		System.out.print(" Done!\n");
 		showBoard();
-		Scanner k = new Scanner(System.in);
 		int turn = 1;
 		while(true) {
+			System.out.printf("Player %d > ", turn);
 			String commands = k.nextLine();
 			String [] arguments = commands.split(" ");
 			switch (arguments[0]) {
@@ -51,11 +53,43 @@ public class Controller {
 						e.printStackTrace();
 						continue;
 					}
-					turn = Piece.mod((turn + 1),2);
-					Piece.fireLaser(1);
+					// The move was successfully completed.
+					// Fire the laser at the end of every turn
+					Piece.fireLaser(turn);
+					if (turn == 1) { turn = 2; }
+					else { turn = 1; }	
 					break;
 				case "rotate":
-					turn = Piece.mod((turn + 1),2);
+					if (arguments.length != 4){
+						System.out.println("Invalid command. Proper syntax is: rotate <x> <y> <CW/CCW>");
+						continue;
+					}
+					x = 0; 
+					y = 0;
+					boolean rot_dir = true;
+					if (arguments[3].equals("CW")) { rot_dir = true; }
+					else if (arguments[3].equals("CCW")) { rot_dir = false; }
+					else { System.out.println("Invalid rotation direction, choose either CW or CCW."); continue; }
+					try {
+						x = Integer.parseInt(arguments[1]);
+						y = Integer.parseInt(arguments[2]);
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					}
+					try {
+						Piece.boardRotate(x,y,rot_dir,turn);
+					} catch (InvalidMoveException e) {
+						e.printStackTrace();
+						continue;
+					}
+					// The move was successfully completed.
+					// Fire the laser at the end of every turn
+					Piece.fireLaser(turn);
+					if (turn == 1) { turn = 2; }
+					else { turn = 1; }	
+					break;
+				case "show":
+					showBoard();
 					break;
 				case "quit":
 					System.out.println("Thanks for playing!");
@@ -64,6 +98,25 @@ public class Controller {
 				default: 
 					System.out.println("Sorry, that's not a valid command.");	
 			}
+			int win = Piece.checkVictory();
+			if (win == 1) {
+				System.out.println("Player 1 wins!");
+				break;
+			}
+			else if (win == 2) {
+				System.out.println("Player 2 wins!");
+				break;
+			}
+		}
+		System.out.print("Play again? [Y/N] ");
+		String response = k.nextLine();
+		if (response.equals("Y")) { 
+			continue;
+		}
+		else {
+			k.close();
+			return;
+		}
 		}
 	}
 	

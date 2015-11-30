@@ -91,41 +91,43 @@ public abstract class Piece {
 	 * 		3 - Is the location a restricted space (red or silver)?
 	 * </p>
 	 * @param dir 	Direction of movement (0-7)
-	 * @return 		Success (0) or failure (-1)
+	 * @return 		Success (0) 
 	 */
-	public int move(int dir){
+	public int move(int dir) throws InvalidMoveException{
 		if ((dir < 0) || (dir > 7)) {
 			// Invalid direction
-			// TODO: Throw some error
-			System.out.println("Invalid Direction!");
-			return -1;
+			throw new InvalidMoveException("Invalid movement direction chosen, choose between 0-7.");
 		}
 		Integer[] newxy = new_pos(dir,this.x,this.y);
 		// Check if position is valid
-		if ((newxy[0] < 0) || (newxy[0] > Params.BOARD_WIDTH-1)) { return -1; }
-		if ((newxy[1] < 0) || (newxy[1] > Params.BOARD_HEIGHT-1)) { return -1; }
+		if ((newxy[0] < 0) || (newxy[0] > Params.BOARD_WIDTH-1)) { 
+				throw new InvalidMoveException("Can't move piece off the board.");			
+		}
+		if ((newxy[1] < 0) || (newxy[1] > Params.BOARD_HEIGHT-1)) {
+				throw new InvalidMoveException("Can't move piece off the board.");			
+		}
 		if (newxy[0] == Params.BOARD_WIDTH - 1) {
 			// Far right column: player 1 only
 			if (player != 1) {
-				return -1;
+				throw new InvalidMoveException("Only Player 1 can move there.");
 			}
 		}
 		else if (newxy[0] == 0) {
 			// Far left column: player 2 only
 			if (player != 2) {
-				return -1;
+				throw new InvalidMoveException("Only Player 2 can move there.");
 			}
 		}
 		else if ((newxy[0] == 1) && ((newxy[1] == 0) || newxy[1] == Params.BOARD_HEIGHT-1)) {
 			// Second to far left: top and bottom boxes are player 1 only
 			if (player != 1) {
-				return -1;
+				throw new InvalidMoveException("Only Player 1 can move there.");
 			}
 		}
 		else if ((newxy[0] == Params.BOARD_WIDTH-2) && ((newxy[1] == 0) || newxy[1] == Params.BOARD_HEIGHT-1)) {
 			// Second to far right: top and bottom boxes are player 2 only
 			if (player != 2) {
-				return -1;
+				throw new InvalidMoveException("Only Player 2 can move there.");
 			}
 		}
 		Piece a = isOccupied(newxy[0], newxy[1]);
@@ -135,9 +137,11 @@ public abstract class Piece {
 				swap(this,a);					
 			}
 			else {
-				return -1;
+				throw new InvalidMoveException("Another piece is already in that spot.");
 			}
 		}
+		this.x = newxy[0];
+		this.y = newxy[1];
 		return 0;	
 	}
 
@@ -174,15 +178,61 @@ public abstract class Piece {
 	 * @param y 	Y location of piece to be moved.
 	 * @param move_dir Direction the piece is to be moving (0-7)
 	 * @param player 	Player initiating the move
-	 * @return 		Success (0) or failure (-1)
 	 */
-	public static int boardMove(int x, int y, int move_dir, int player) throws InvalidMoveException {
+	public static void boardMove(int x, int y, int move_dir, int player) throws InvalidMoveException {
 		Piece a = isOccupied(x,y);
 		// Piece doesn't exist on board
 		if (a == null) { throw new InvalidMoveException("Piece doesn't exist."); }
 		// Piece isn't the player's
 		if (a.player != player) { throw new InvalidMoveException("This piece doesn't belong to you."); }
-		return a.move(move_dir);	
+		try {
+			a.move(move_dir);	
+		} catch (InvalidMoveException e) {
+			throw e;
+		}
+	}
+
+	/**
+	 * boardRotate(x,y,rot_dir,player) -- initiate a rotate on the board and report 
+	 * back if it is illegal.
+	 * @param x		X location of piece to be moved.
+	 * @param y 	Y location of piece to be moved.
+	 * @param rot_dir Rotation direction (CW (true) or CCW (false)) 
+	 * @param player 	Player initiating the move
+	 */
+	public static void boardRotate(int x, int y, boolean rot_dir, int player) throws InvalidMoveException {
+		Piece a = isOccupied(x,y);
+		// Piece doesn't exist on board
+		if (a == null) { throw new InvalidMoveException("Piece doesn't exist."); }
+		// Piece isn't the player's
+		if (a.player != player) { throw new InvalidMoveException("This piece doesn't belong to you."); }
+		a.rotate(rot_dir);	
+	}
+
+	/**
+	 * checkVictory() -- check if a player has won at the end of every turn.
+	 * @return 		The player who won, or 0 if no player has yet won.
+	 */
+	public static int checkVictory() {
+		boolean p1_pharaoh = false;
+		boolean p2_pharaoh = false;
+		for (Piece a : board_pieces) {
+			if (a instanceof Pharaoh) {
+				if (a.player == 1) { p1_pharaoh = true; }
+				if (a.player == 2) { p2_pharaoh = true; }
+			}
+		}
+		if (!p1_pharaoh) { 
+			/* PLAYER 2 WINS */
+			return 2;
+		}
+		else if (!p2_pharaoh) {
+			/* PLAYER 1 WINS */
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	}
 
 	/**
@@ -220,9 +270,10 @@ public abstract class Piece {
 		if (a != null) {
 			new_dir = a.reflectDirection(dir);
 			if (new_dir == -1) {
-				// TODO: handle death? exception of obelisk?
 				// TODO: Remove this debug statement
 				System.out.printf("Piece at %d, %d was hit!\n", x,y);
+				a.health -= 1;
+				if (a.health == 0) { board_pieces.remove(a); }	
 				return -1;
 			}
 		}
@@ -326,8 +377,8 @@ public abstract class Piece {
 				// row 4
 				add(p,0,4,2,1);
 				add(p,2,4,1,3);
-				add(d,4,4,2,1);
-				add(d,5,4,2,0);
+				add(d,4,4,1,1);
+				add(d,5,4,1,0);
 				add(p,7,4,2,0);
 				add(p,9,4,1,2);
 				// row 5
@@ -354,5 +405,6 @@ public abstract class Piece {
 	public int rot;
 	public int x;
 	public int y;
+	public int health = 1;
 	
 }
