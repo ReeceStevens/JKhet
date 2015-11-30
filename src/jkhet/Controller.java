@@ -14,9 +14,31 @@ public class Controller {
 		Scanner k = new Scanner(System.in);
 		while(true) {
 		System.out.println("Welcome to JKhet!");
-		System.out.print("Starting a new classic game...");
-		Piece.setupBoard(Piece.SetupType.CLASSIC);
-		System.out.print(" Done!\n");
+		while(true) {
+			System.out.print("Select a game type, (1) Classic, (2) Dynasty, or (3) Imhotep: ");
+			String input = k.nextLine();
+			if (input.equals("1")) {
+				System.out.print("Starting a new Classic game...");
+				Piece.setupBoard(Piece.SetupType.CLASSIC);
+				System.out.print(" Done!\n");
+				break;
+			}
+			else if (input.equals("2")) {
+				System.out.print("Starting a new Dynasty game...");
+				Piece.setupBoard(Piece.SetupType.DYNASTY);
+				System.out.print(" Done!\n");
+				break;
+			}
+			else if (input.equals("3")) {
+				System.out.print("Starting a new Imhotep game...");
+				Piece.setupBoard(Piece.SetupType.IMHOTEP);
+				System.out.print(" Done!\n");
+				break;
+			}
+			else {
+				System.out.println("Invalid game type.");
+			}
+		}
 		showBoard();
 		int turn = 1;
 		while(true) {

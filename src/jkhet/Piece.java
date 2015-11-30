@@ -393,10 +393,75 @@ public abstract class Piece {
 				break;
 			case DYNASTY:
 				// setup dynasty 
+				// row 0
+				add(p,4,0,2,2);
+				add(o,5,0,2,0);
+				add(p,6,0,2,1);
+				// row 1
+				add(ph,5,1,2,0);
+				// row 2
+				add(p,0,2,2,0);
+				add(p,4,2,2,2);
+				add(o,5,2,2,0);
+				add(d,6,2,2,1);
+				// row 3
+				add(p,0,3,2,1);
+				add(d,2,3,2,0);
+				add(p,4,3,1,3);
+				add(p,6,3,1,1);
+				// row 4
+				add(p,3,4,2,3);
+				add(p,5,4,2,1);
+				add(d,7,4,1,0);
+				add(p,9,4,1,3);
+				// row 5
+				add(d,3,5,1,1);
+				add(o,4,5,1,0);
+				add(p,5,5,1,0);
+				add(p,9,5,1,2);
+				// row 6
+				add(ph,4,6,1,0);
+				// row 7
+				add(p,3,7,1,3);
+				add(o,4,7,1,0);
+				add(p,5,7,1,0);
 				break;
+
 			case IMHOTEP:
 				// setup imhotep
+				// row 0
+				add(o,4,0,2,0);	
+				add(ph,5,0,2,0);	
+				add(o,6,0,2,0);	
+				add(d,7,0,2,1);	
+				// row 2
+				add(p,3,2,1,3);
+				add(p,6,2,2,0);
+				// row 3
+				add(p,0,3,2,0);
+				add(p,1,3,1,2);
+				add(p,4,3,1,1);
+				add(d,5,3,2,1);
+				add(p,8,3,2,1);
+				add(p,9,3,1,3);
+				// row 4
+				add(p,0,4,2,1);
+				add(p,1,4,1,3);
+				add(d,4,4,1,1);
+				add(p,5,4,2,3);
+				add(p,8,4,2,0);
+				add(p,9,4,1,2);
+				// row 5
+				add(p,6,5,2,1);
+				add(p,3,5,1,2);
+				// row 7
+				add(d,2,7,1,1);
+				add(o,3,7,1,0);
+				add(ph,4,7,1,0);
+				add(o,5,7,1,0);				
+
 				break;
+			
 		}	
 	}
 
