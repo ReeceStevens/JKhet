@@ -12,7 +12,6 @@ public class Controller {
 		showBoard();		
 		Piece.board_pieces.remove(b);
 		showBoard();		*/
-
 		
 	}
 	
