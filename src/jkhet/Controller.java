@@ -3,15 +3,39 @@ package jkhet;
 import java.util.Scanner;
 
 public class Controller {
-	public static void main(String [] args) {
-		cli();
-	}
+
+	private static Scanner k;
 	
+	public static void main(String [] args) {
+		k = new Scanner(System.in);
+		while(true) {
+		System.out.print("Begin JKhet with cli (1) or gui (2)? ");
+		String response = k.nextLine();
+		switch(response) {
+			case "1":
+				cli();
+				return;
+			case "2":
+				gui();
+				return;
+			default:
+				System.out.println("Invalid interface selection.");
+		}
+		}
+	}
+
+	/**
+	 * gui() -- Initializes the JKhet GUI
+	 */
+	public static void gui() {
+		Gui.initGui();
+	}
+
 	/**
 	 * cli() -- Initializes command line interface
 	 */	
 	public static void cli() {
-		Scanner k = new Scanner(System.in);
+		//Scanner k = new Scanner(System.in);
 		while(true) {
 		System.out.println("Welcome to JKhet!");
 		while(true) {
