@@ -72,7 +72,7 @@ public abstract class Piece {
 	 * @param y		Y coordinate on board
 	 * @return 		A reference to the piece at that location
 	 */
-	private static Piece isOccupied(int x, int y) {
+	public static Piece isOccupied(int x, int y) {
 		// TODO: finish this function.
 		for (Piece a : board_pieces) {
 			if ((a.x == x) && (a.y == y)) { return a;}
