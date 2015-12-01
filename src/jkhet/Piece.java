@@ -1,14 +1,8 @@
 package jkhet;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.net.URL;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -36,7 +30,14 @@ public abstract class Piece {
 			return (a + (b*(c+1)))%5;
 		}
 	}
-
+	
+	/**
+	 * new_pos(dir,x,y) -- calculate a new position for a given position and direction.
+	 * @param dir 	Direction to move
+	 * @param x 	X location on board
+	 * @param y 	Y location on board
+	 * @return 		Integery array: [0] is x, [1] is y.
+	 */
 	private Integer[] new_pos(int dir, int x, int y) {
 		int new_x = x;
 		int new_y = y;
@@ -204,6 +205,8 @@ public abstract class Piece {
 
 	/**
 	 * swap(a,b) -- swap the locations of two pieces on the board
+	 * @param a 	First piece
+	 * @param b 	Second piece
 	 */	
 	private void swap(Piece a, Piece b) {
 		int tmp_x = a.x;
@@ -310,6 +313,13 @@ public abstract class Piece {
 		IMHOTEP;
 	}
 
+	/**
+	 * peekLaserRecursive(x,y,dir) -- peek at the laser without actually firing (recursive call)
+	 * @param x 	X location of laser
+	 * @param y 	Y location of laser
+	 * @param dir 	Direction the laser is heading
+	 * @return 		-1 if impact, 0 if error
+	 */
 	private static int peekLaserRecursive(int x, int y, int dir) {
 		// Base case 1: Hit a wall
 		if ((x < 0) || (x >= Params.BOARD_WIDTH)) { 
@@ -465,6 +475,13 @@ public abstract class Piece {
 		else { return 0; }
 	}
 
+	/**
+	 * fireLaserRecursive(x,y,dir) -- Fire the laser (recursive call)
+	 * @param x 	X location of laser
+	 * @param y  	Y location of laser
+	 * @param dir 	Direction laser is going
+	 * @return 		-1 if impact, 0 if error
+	 */
 	private static int fireLaserRecursive(int x, int y, int dir) {
 		// Base case 1: Hit a wall
 		if ((x < 0) || (x > Params.BOARD_WIDTH)) { 
@@ -505,6 +522,10 @@ public abstract class Piece {
 		else { return 0; }
 	}
 
+	/**
+	 * peekLaser(player) -- look at a player's laser without actually firing
+	 * @param player 	The player whose laser is being viewed
+	 */
 	public static void peekLaser(int player) {
 		if (player == 1) {
 				peekLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
@@ -515,6 +536,10 @@ public abstract class Piece {
 		
 	}
 
+	/**
+	 * fireLaser(player) -- fire a player's laser
+	 * @param player 	The player whose laser is being fired 
+	 */
 	public static void fireLaser(int player, boolean Gui) {
 		if (player == 1) {
 				fireLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);

@@ -7,7 +7,7 @@ public class Controller {
 	private static Scanner k;
 	
 	public static void main(String [] args) {
-		k = new Scanner(System.in);
+		/*k = new Scanner(System.in);
 		while(true) {
 		System.out.print("Begin JKhet with cli (1) or gui (2)? ");
 		String response = k.nextLine();
@@ -21,7 +21,8 @@ public class Controller {
 			default:
 				System.out.println("Invalid interface selection.");
 		}
-		}
+		}*/
+		gui();
 	}
 
 	/**
@@ -166,7 +167,9 @@ public class Controller {
 		}
 	}
 	
-
+	/**
+	 * showBoard() -- prints the game board to the console
+	 */
 	private static void showBoard() {
 		for (int i = 0; i < Params.BOARD_HEIGHT+2; i += 1) {
 			for (int j = 0; j < Params.BOARD_WIDTH+2; j += 1) {

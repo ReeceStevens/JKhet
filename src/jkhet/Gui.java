@@ -1,16 +1,8 @@
 package jkhet;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
-
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,17 +12,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 
 public class Gui extends Application {
@@ -45,7 +33,6 @@ public class Gui extends Application {
 	private static Text winner = new Text();
 	private static Button peekAtLaser = null; 
 	private static int window_height = 500;
-	private static int window_width = 1000;
 	private static boolean peeking = false;
 	protected static int min = window_height / Params.BOARD_HEIGHT;
 
@@ -144,17 +131,18 @@ public class Gui extends Application {
 	 * 				1 or 2, display laser of player.
 	 */
 	public static void drawBoard(int laser) {
+		board.getChildren().clear();
 		for (int i = 0; i < Params.BOARD_WIDTH; i += 1) {
 			for (int j = 0; j < Params.BOARD_HEIGHT; j += 1) {
 			String img_url = "";
 			if ((i == 0) || ((i == Params.BOARD_WIDTH-2) && ((j == 0) || (j == Params.BOARD_HEIGHT-1))) ){
-				img_url = "file:jkhet/imgs/p2_space.png";
+				img_url = "file:./jkhet/imgs/p2_space.png";
 			}
 			else if ((i == Params.BOARD_WIDTH-1) || ((i == 1) && ((j == 0) || (j == Params.BOARD_HEIGHT-1)))) {
-				img_url = "file:jkhet/imgs/p1_space.png";
+				img_url = "file:./jkhet/imgs/p1_space.png";
 			}
 			else {
-				img_url = "file:jkhet/imgs/empty_space.png";
+				img_url = "file:./jkhet/imgs/empty_space.png";
 			}
 			Image img = new Image(img_url);
 			ImageView iv1 = new ImageView(img);
@@ -484,7 +472,9 @@ public class Gui extends Application {
 	}
 
 
-
+	/**
+	 * initGui() -- launches the JavaFX main application window
+	 */
 	public static void initGui() {
 		launch();
 	}
