@@ -139,10 +139,28 @@ public class Gui extends Application {
 	public static void drawBoard() {
 		for (int i = 0; i < Params.BOARD_WIDTH; i += 1) {
 			for (int j = 0; j < Params.BOARD_HEIGHT; j += 1) {
-				javafx.scene.shape.Rectangle clear_rect = new javafx.scene.shape.Rectangle(0,0,min-1,min-1);
-				clear_rect.setFill(Color.DIMGREY);
-				clear_rect.setStroke(Color.BLACK);
-				board.add(clear_rect,i,j);
+			String img_url = "";
+			if ((i == 0) || ((i == Params.BOARD_WIDTH-2) && ((j == 0) || (j == Params.BOARD_HEIGHT-1))) ){
+				img_url = "file:jkhet/imgs/p2_space.png";
+			}
+			else if ((i == Params.BOARD_WIDTH-1) || ((i == 1) && ((j == 0) || (j == Params.BOARD_HEIGHT-1)))) {
+				img_url = "file:jkhet/imgs/p1_space.png";
+			}
+			else {
+				img_url = "file:jkhet/imgs/empty_space.png";
+			}
+			BufferedImage buff_img;
+			try{
+				buff_img = ImageIO.read(new URL(img_url));
+				Image img = SwingFXUtils.toFXImage(buff_img,null);
+				ImageView iv1 = new ImageView(img);
+				iv1.setFitWidth(min-1);
+				iv1.setPreserveRatio(true);
+				iv1.setSmooth(true);
+				board.add(iv1,i,j);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			}
 		}
 		for (Piece a : Piece.board_pieces) {
