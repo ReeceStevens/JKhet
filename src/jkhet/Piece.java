@@ -73,7 +73,6 @@ public abstract class Piece {
 	 * @return 		A reference to the piece at that location
 	 */
 	public static Piece isOccupied(int x, int y) {
-		// TODO: finish this function.
 		for (Piece a : board_pieces) {
 			if ((a.x == x) && (a.y == y)) { return a;}
 		}	
@@ -81,6 +80,55 @@ public abstract class Piece {
 	}
 
 	public String toString() { return ""; }
+	
+	/**
+	 * getDir(x,y) -- get direction number (0-7) 
+	 * relative to a piece based on a coordinate
+	 * @param x		X coordinate of location
+	 * @param y		Y coordinate of location
+	 * @return 		Direction number (0-7) of this coordinate relative to the piece.
+	 * 				Returns -1 if the location is not one spot away.
+	 */
+	public int getDir(int x, int y) {
+		int delta_x = x - this.x;
+		int delta_y = y - this.y;
+		if (delta_x == -1) {
+			switch (delta_y) {
+				case -1:
+					return 7;
+				case 0:
+					return 6;
+				case 1:
+					return 5;
+				default:
+					return -1;
+			}
+		} else if (delta_x == 0) {
+			switch (delta_y) {
+				case -1:
+					return 0;
+				case 0:
+					return -1;
+				case 1:
+					return 4;
+				default:
+					return -1;
+			}
+		} else if (delta_x == 1) {
+			switch (delta_y) {
+				case -1:
+					return 1;
+				case 0:
+					return 2;
+				case 1:
+					return 3;
+				default:
+					return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
 
 	/**
 	 * Move(int dir) -- move a piece 

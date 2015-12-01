@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,8 +23,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.canvas.Canvas;
@@ -31,8 +34,22 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 
 public class Gui extends Application {
+	private static int turn = 1;
+	private static Piece selected = null;
+	public static Stage game = null; 
+	public static Stage startStage = null; 
+	private static GridPane board = null;
+	private static GridPane controls = null;
+	private static VBox moveOptions = new VBox();
+	private static Text player = new Text();
+	private static Text winner = new Text();
+	private static int window_height = 500;
+	private static int window_width = 1000;
+	private static int min = window_height / Params.BOARD_HEIGHT;
+
 	@Override
 	public void start(Stage primaryStage) {
+		startStage = primaryStage;
 		primaryStage.setTitle("JKhet");
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -118,17 +135,8 @@ public class Gui extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
-	
-	/**
-	 * launchGame() -- open game window and begin playing
-	 */
-	public static void launchGame() {
-		int window_height = 500;
-		int window_width = 1000;
-		Stage game = new Stage();
-		GridPane masterGrid = new GridPane();
-		GridPane board = new GridPane();
-		int min = window_height / Params.BOARD_HEIGHT;
+
+	public static void drawBoard() {
 		for (int i = 0; i < Params.BOARD_WIDTH; i += 1) {
 			for (int j = 0; j < Params.BOARD_HEIGHT; j += 1) {
 				javafx.scene.shape.Rectangle clear_rect = new javafx.scene.shape.Rectangle(0,0,min-1,min-1);
@@ -227,7 +235,6 @@ public class Gui extends Application {
 			else {continue; }
 			BufferedImage buff_img;
 			try{
-				//buff_img = ImageIO.read(new URL("file:/Users/reecestevens/school/JKhet/src/jkhet/pyramid_p2_rot0.png"));
 				buff_img = ImageIO.read(new URL(img_url));
 				Image img = SwingFXUtils.toFXImage(buff_img,null);
 				ImageView iv1 = new ImageView(img);
@@ -239,7 +246,169 @@ public class Gui extends Application {
 				e.printStackTrace();
 			}
 		}
+		if (turn == 1) { player.setText("Player 1"); }
+		else { player.setText("Player 2"); }	
+	}
+	
+	/**
+	 * endGame(winner) -- Display the winner of the game
+	 * @param win 	Player who won the game
+	 */
+	private static void endGame(int win) {
+		turn = 0;
+		winner.setFill(Color.DARKGOLDENROD);
+		winner.setText("The winner is Player " + win + "!");	
+		moveOptions.getChildren().clear();
+		Button playAgain = new Button("Play Again");
+		Button quit = new Button("Quit");
+		moveOptions.getChildren().add(playAgain);
+		moveOptions.getChildren().add(quit);
+		playAgain.setOnAction(new EventHandler<ActionEvent>() {
+			@Override		
+			public void handle(ActionEvent event) {
+				game.close();			
+			}
+		});
+		quit.setOnAction(new EventHandler<ActionEvent>() {
+			@Override		
+			public void handle(ActionEvent event) {
+				startStage.close();
+				game.close();			
+			}
+		});
+	}
+
+	/**
+	 * launchGame() -- open game window and begin playing
+	 */
+	public static void launchGame() {
+		int window_height = 500;
+		int window_width = 1000;
+		winner.setText("");
+		turn = 1;
+		moveOptions.getChildren().clear();
+		game = new Stage();
+		GridPane masterGrid = new GridPane();
+		board = new GridPane();
+		controls = new GridPane();	
+		drawBoard();	
 		masterGrid.add(board,0,0);
+		controls.setHgap(10);
+		controls.setVgap(10);
+		controls.setPadding(new Insets(25,25,25,25));
+		Label turnTitle = new Label("Turn: ");
+		controls.add(turnTitle,0,0);
+		if (turn == 1) { player.setText("Player 1"); }
+		else { player.setText("Player 2"); }	
+		controls.add(player,1,0);
+		Text moveError = new Text();
+		controls.add(moveError,0,2);
+		controls.add(winner,0,3);
+		controls.add(moveOptions,0,1);
+		masterGrid.add(controls,1,0);		
+
+		board.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent e) {
+				if (turn == 0) { return; }
+				for (Node node : board.getChildren()) {
+					//if (node instanceof ImageView) {
+						if (node.getBoundsInParent().contains(e.getSceneX(), e.getSceneY())){
+							int y = GridPane.getRowIndex(node);
+							int x = GridPane.getColumnIndex(node);
+							Piece p = Piece.isOccupied(x,y);
+							if (selected != null) {
+								// do move stuff
+								int dir = selected.getDir(x,y);	
+								try {
+									Piece.boardMove(selected.x, selected.y,dir,turn);
+									moveError.setText("");
+									Piece.fireLaser(turn);
+									turn = (turn == 1) ? 2 : 1;
+									moveOptions.getChildren().clear();
+									selected = null;
+									drawBoard();
+									int winner = Piece.checkVictory();
+									if (winner != 0) {
+										endGame(winner);
+									}
+									return;
+								} catch (InvalidMoveException err) {
+									moveError.setFill(Color.FIREBRICK);
+									moveError.setText("This is an invalid move!");
+									return;
+								}
+							}
+							else {
+								if (p == null) { return; }
+								if (turn != p.player) { 
+									moveError.setFill(Color.FIREBRICK);
+									moveError.setText("This piece doesn't\nbelong to you!");
+									return;
+								}
+								selected = p;
+								Button rotate_cw = new Button("Rotate CW");
+								Button rotate_ccw = new Button("Rotate CCW");
+								rotate_cw.setOnAction(new EventHandler<ActionEvent>() {
+									@Override
+									public void handle(ActionEvent event) {
+										try {
+											Piece.boardRotate(p.x,p.y,true, turn);
+											Piece.fireLaser(turn);
+											turn = (turn == 1) ? 2 : 1;
+											selected = null;
+											moveOptions.getChildren().clear();
+											drawBoard();
+											int winner = Piece.checkVictory();
+											if (winner != 0) {
+												endGame(winner);
+											}
+											return;
+										} catch (InvalidMoveException err) {
+											selected = null;
+											moveError.setFill(Color.FIREBRICK);
+											moveError.setText("This is an invalid move!");
+											return;
+											//err.printStackTrace();
+										}
+									}
+								});
+								rotate_ccw.setOnAction(new EventHandler<ActionEvent>() {
+									@Override
+									public void handle(ActionEvent event) {
+										try {
+											Piece.boardRotate(p.x,p.y,false, turn);
+											Piece.fireLaser(turn);
+											turn = (turn == 1) ? 2 : 1;
+											selected = null;
+											moveOptions.getChildren().clear();
+											drawBoard();
+											int winner = Piece.checkVictory();
+											if (winner != 0) {
+												endGame(winner);
+											}
+											return;	
+										} catch (InvalidMoveException err) {
+											//err.printStackTrace();
+											moveError.setFill(Color.FIREBRICK);
+											moveError.setText("This is an invalid move!");
+											selected = null;
+											return;
+										}
+									}
+								});
+								moveOptions.getChildren().clear();
+								moveOptions.getChildren().add(rotate_cw);
+								moveOptions.getChildren().add(rotate_ccw);
+								moveError.setText("");
+								return;
+							}
+						}
+					}
+				//}
+			}
+		});	
+			
 		Scene masterScene = new Scene(masterGrid,window_width,window_height);
 		game.setScene(masterScene);
 		game.show();
