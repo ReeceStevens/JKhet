@@ -312,13 +312,10 @@ public abstract class Piece {
 
 	private static int peekLaserRecursive(int x, int y, int dir) {
 		// Base case 1: Hit a wall
-		// TODO: remove these debug statements
 		if ((x < 0) || (x >= Params.BOARD_WIDTH)) { 
-				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
 				return -1;
 	   	}
 		if ((y < 0) || (y >= Params.BOARD_HEIGHT)) { 
-				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
 				return -1;
 	   	}
 		// Base case 2: Hit a piece in a non-mirror location
@@ -470,13 +467,10 @@ public abstract class Piece {
 
 	private static int fireLaserRecursive(int x, int y, int dir) {
 		// Base case 1: Hit a wall
-		// TODO: remove these debug statements
 		if ((x < 0) || (x > Params.BOARD_WIDTH)) { 
-				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
 				return -1;
 	   	}
 		if ((y < 0) || (y > Params.BOARD_HEIGHT)) { 
-				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
 				return -1;
 	   	}
 		// Base case 2: Hit a piece in a non-mirror location
@@ -485,8 +479,6 @@ public abstract class Piece {
 		if (a != null) {
 			new_dir = a.reflectDirection(dir);
 			if (new_dir == -1) {
-				// TODO: Remove this debug statement
-				System.out.printf("Piece at %d, %d was hit!\n", x,y);
 				a.health -= 1;
 				if (a.health == 0) { board_pieces.remove(a); }	
 				return -1;
