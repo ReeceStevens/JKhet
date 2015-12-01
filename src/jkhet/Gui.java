@@ -38,14 +38,16 @@ public class Gui extends Application {
 	private static Piece selected = null;
 	public static Stage game = null; 
 	public static Stage startStage = null; 
-	private static GridPane board = null;
+	protected static GridPane board = null;
 	private static GridPane controls = null;
 	private static VBox moveOptions = new VBox();
 	private static Text player = new Text();
 	private static Text winner = new Text();
+	private static Button peekAtLaser = null; 
 	private static int window_height = 500;
 	private static int window_width = 1000;
-	private static int min = window_height / Params.BOARD_HEIGHT;
+	private static boolean peeking = false;
+	protected static int min = window_height / Params.BOARD_HEIGHT;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -136,7 +138,12 @@ public class Gui extends Application {
 		primaryStage.show();
 	}
 
-	public static void drawBoard() {
+	/**
+	 * drawBoard(laser) -- update the board 
+	 * @param laser 0, don't display laser.
+	 * 				1 or 2, display laser of player.
+	 */
+	public static void drawBoard(int laser) {
 		for (int i = 0; i < Params.BOARD_WIDTH; i += 1) {
 			for (int j = 0; j < Params.BOARD_HEIGHT; j += 1) {
 			String img_url = "";
@@ -149,18 +156,12 @@ public class Gui extends Application {
 			else {
 				img_url = "file:jkhet/imgs/empty_space.png";
 			}
-			BufferedImage buff_img;
-			try{
-				buff_img = ImageIO.read(new URL(img_url));
-				Image img = SwingFXUtils.toFXImage(buff_img,null);
-				ImageView iv1 = new ImageView(img);
-				iv1.setFitWidth(min-1);
-				iv1.setPreserveRatio(true);
-				iv1.setSmooth(true);
-				board.add(iv1,i,j);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			board.add(iv1,i,j);
 			}
 		}
 		for (Piece a : Piece.board_pieces) {
@@ -251,21 +252,18 @@ public class Gui extends Application {
 				else if (a.player == 2) { img_url = "file:jkhet/imgs/pharaoh_p2.png";}
 			}	
 			else {continue; }
-			BufferedImage buff_img;
-			try{
-				buff_img = ImageIO.read(new URL(img_url));
-				Image img = SwingFXUtils.toFXImage(buff_img,null);
-				ImageView iv1 = new ImageView(img);
-				iv1.setFitWidth(min-1);
-				iv1.setPreserveRatio(true);
-				iv1.setSmooth(true);
-				board.add(iv1,a.x,a.y);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			board.add(iv1,a.x,a.y);
 		}
 		if (turn == 1) { player.setText("Player 1"); }
 		else { player.setText("Player 2"); }	
+		if (laser != 0) {
+			Piece.peekLaser(laser);
+		}
 	}
 	
 	/**
@@ -284,17 +282,44 @@ public class Gui extends Application {
 		playAgain.setOnAction(new EventHandler<ActionEvent>() {
 			@Override		
 			public void handle(ActionEvent event) {
+				board.getChildren().clear();
+				controls.getChildren().clear();
 				game.close();			
 			}
 		});
 		quit.setOnAction(new EventHandler<ActionEvent>() {
 			@Override		
 			public void handle(ActionEvent event) {
+				board.getChildren().clear();
+				controls.getChildren().clear();
 				startStage.close();
 				game.close();			
 			}
 		});
 	}
+	
+	/**
+	 * boardLaser(turn) -- launch the laser and show
+	 * the path on the GUI 
+	 * @param turn 		The player launching the laser
+	 */
+	private static void boardLaser(int turn) {
+		Piece.fireLaser(turn, true);
+		//moveOptions.getChildren().clear();
+		//Button cont = new Button("Continue");
+		//moveOptions.getChildren().add(cont);
+		/*while(!cont.isPressed()){
+			System.out.println("Waiting...");	
+		}*/
+		/*cont.setOnAction(new EventHandler<ActionEvent>() {
+			@Override		
+			public void handle(ActionEvent event) {
+				moveOptions.getChildren().clear();
+				drawBoard(0);
+				return;
+			}
+		});*/
+	}	
 
 	/**
 	 * launchGame() -- open game window and begin playing
@@ -309,7 +334,7 @@ public class Gui extends Application {
 		GridPane masterGrid = new GridPane();
 		board = new GridPane();
 		controls = new GridPane();	
-		drawBoard();	
+		drawBoard(0);	
 		masterGrid.add(board,0,0);
 		controls.setHgap(10);
 		controls.setVgap(10);
@@ -320,10 +345,27 @@ public class Gui extends Application {
 		else { player.setText("Player 2"); }	
 		controls.add(player,1,0);
 		Text moveError = new Text();
+		peekAtLaser = new Button("Peek Laser");
+		controls.add(moveOptions,0,1);
+		controls.add(peekAtLaser,1,1);
 		controls.add(moveError,0,2);
 		controls.add(winner,0,3);
-		controls.add(moveOptions,0,1);
 		masterGrid.add(controls,1,0);		
+
+		peekAtLaser.setOnAction(new EventHandler<ActionEvent>() {
+			@Override		
+			public void handle(ActionEvent event) {
+				if (peeking) {
+					drawBoard(0);
+					peekAtLaser.setText("Peek Laser");
+					peeking = false;
+				} else {
+					drawBoard(turn);
+					peekAtLaser.setText("Done");
+					peeking = true;
+				}
+			}
+		});
 
 		board.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
@@ -341,11 +383,14 @@ public class Gui extends Application {
 								try {
 									Piece.boardMove(selected.x, selected.y,dir,turn);
 									moveError.setText("");
-									Piece.fireLaser(turn);
+									boardLaser(turn);
+									//Piece.fireLaser(turn);
 									turn = (turn == 1) ? 2 : 1;
 									moveOptions.getChildren().clear();
 									selected = null;
-									drawBoard();
+									drawBoard(0);
+									peeking = false;
+									peekAtLaser.setText("Peek Laser");
 									int winner = Piece.checkVictory();
 									if (winner != 0) {
 										endGame(winner);
@@ -372,11 +417,14 @@ public class Gui extends Application {
 									public void handle(ActionEvent event) {
 										try {
 											Piece.boardRotate(p.x,p.y,true, turn);
-											Piece.fireLaser(turn);
+											boardLaser(turn);
+											//Piece.fireLaser(turn);
 											turn = (turn == 1) ? 2 : 1;
 											selected = null;
 											moveOptions.getChildren().clear();
-											drawBoard();
+											drawBoard(0);
+											peeking = false;
+											peekAtLaser.setText("Peek Laser");
 											int winner = Piece.checkVictory();
 											if (winner != 0) {
 												endGame(winner);
@@ -396,11 +444,14 @@ public class Gui extends Application {
 									public void handle(ActionEvent event) {
 										try {
 											Piece.boardRotate(p.x,p.y,false, turn);
-											Piece.fireLaser(turn);
+											boardLaser(turn);
+											//Piece.fireLaser(turn);
 											turn = (turn == 1) ? 2 : 1;
 											selected = null;
 											moveOptions.getChildren().clear();
-											drawBoard();
+											drawBoard(0);
+											peeking = false;
+											peekAtLaser.setText("Peek Laser");
 											int winner = Piece.checkVictory();
 											if (winner != 0) {
 												endGame(winner);

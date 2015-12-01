@@ -101,7 +101,7 @@ public class Controller {
 					}
 					// The move was successfully completed.
 					// Fire the laser at the end of every turn
-					Piece.fireLaser(turn);
+					Piece.fireLaser(turn, false);
 					if (turn == 1) { turn = 2; }
 					else { turn = 1; }	
 					break;
@@ -130,7 +130,7 @@ public class Controller {
 					}
 					// The move was successfully completed.
 					// Fire the laser at the end of every turn
-					Piece.fireLaser(turn);
+					Piece.fireLaser(turn,false);
 					if (turn == 1) { turn = 2; }
 					else { turn = 1; }	
 					break;

@@ -1,7 +1,16 @@
 package jkhet;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * Master abstract class for board pieces.
@@ -301,6 +310,164 @@ public abstract class Piece {
 		IMHOTEP;
 	}
 
+	private static int peekLaserRecursive(int x, int y, int dir) {
+		// Base case 1: Hit a wall
+		// TODO: remove these debug statements
+		if ((x < 0) || (x >= Params.BOARD_WIDTH)) { 
+				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
+				return -1;
+	   	}
+		if ((y < 0) || (y >= Params.BOARD_HEIGHT)) { 
+				System.out.printf("Hit the wall at %d, %d!\n",x,y);			
+				return -1;
+	   	}
+		// Base case 2: Hit a piece in a non-mirror location
+		Piece a = isOccupied(x,y);
+		int new_dir = -1;
+		if (a != null) {
+			new_dir = a.reflectDirection(dir);
+			String img_url = "";
+			if (a.player == 1) {
+			if (a instanceof Pyramid) {
+				switch(a.rot) {
+						case 0:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot0_laser.png";
+							break;
+						case 1:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot1_laser.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot2_laser.png";
+							break;
+						case 3:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot3_laser.png";
+				}
+			}
+			else if (a instanceof Djed) {
+				switch(a.rot) {
+					case 0:
+					case 2:
+						if ((dir == 3)||(dir==2)) {
+							img_url = "file:jkhet/imgs/djed_p1_rot0_laser_top.png";
+						}
+						else {
+							img_url = "file:jkhet/imgs/djed_p1_rot0_laser_bottom.png";
+						}
+						break;
+					case 1:
+					case 3:
+						if ((dir == 3)||(dir==0)) {
+							img_url = "file:jkhet/imgs/djed_p1_rot1_laser_bottom.png";
+						}
+						else {
+							img_url = "file:jkhet/imgs/djed_p1_rot1_laser_top.png";
+						}
+				}
+			}
+			}
+			else {
+			if (a instanceof Pyramid) {
+				switch(a.rot) {
+						case 0:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot0_laser.png";
+							break;
+						case 1:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot1_laser.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot2_laser.png";
+							break;
+						case 3:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot3_laser.png";
+				}
+			}
+			else if (a instanceof Djed) {
+				switch(a.rot) {
+					case 0:
+					case 2:
+						if ((dir == 3)||(dir==2)) {
+							img_url = "file:jkhet/imgs/djed_p2_rot0_laser_top.png";
+						}
+						else {
+							img_url = "file:jkhet/imgs/djed_p2_rot0_laser_bottom.png";
+						}
+						break;
+					case 1:
+					case 3:
+						if ((dir == 3)||(dir==0)) {
+							img_url = "file:jkhet/imgs/djed_p2_rot1_laser_bottom.png";
+						}
+						else {
+							img_url = "file:jkhet/imgs/djed_p2_rot1_laser_top.png";
+						}
+				}
+			}
+			}
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(Gui.min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			Gui.board.add(iv1,x,y);
+
+			if (new_dir == -1) {
+				//a.health -= 1;
+				//if (a.health == 0) { board_pieces.remove(a); }	
+				return -1;
+			}
+		}
+		else {
+			String img_url = "";
+			if ((x == 0) || ((x == Params.BOARD_WIDTH-2) && ((y == 0) || (y == Params.BOARD_HEIGHT-1))) ){
+				if ((dir == 0) || (dir == 2)) {
+					img_url = "file:jkhet/imgs/p2_space_laser_down.png";
+				} else {
+					img_url = "file:jkhet/imgs/p2_space_laser_across.png";
+				}
+			}
+			else if ((x == Params.BOARD_WIDTH-1) || ((x == 1) && ((y == 0) || (y == Params.BOARD_HEIGHT-1)))) {
+				if ((dir == 0) || (dir == 2)) {
+					img_url = "file:jkhet/imgs/p1_space_laser_down.png";
+				} else {
+					img_url = "file:jkhet/imgs/p1_space_laser_across.png";
+				}
+			}
+			else {
+				if ((dir == 0) || (dir == 2)) {
+					img_url = "file:jkhet/imgs/empty_space_laser_down.png";
+				} else {
+					img_url = "file:jkhet/imgs/empty_space_laser_across.png";
+				}
+			}
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(Gui.min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			Gui.board.add(iv1,x,y);
+		}
+		
+		// Recursive step: find next laser location
+		if (new_dir == -1) { new_dir = dir; }
+		int ret = 0;
+		switch(new_dir){
+			case 0:
+				ret = peekLaserRecursive(x,y-1,new_dir);
+				break;
+			case 1:
+				ret = peekLaserRecursive(x+1,y,new_dir);
+				break;
+			case 2:
+				ret = peekLaserRecursive(x,y+1,new_dir);
+				break;
+			case 3:
+				ret = peekLaserRecursive(x-1,y,new_dir);
+				break;
+		}
+		if (ret == -1) { return -1; }
+		else { return 0; }
+	}
+
 	private static int fireLaserRecursive(int x, int y, int dir) {
 		// Base case 1: Hit a wall
 		// TODO: remove these debug statements
@@ -346,12 +513,22 @@ public abstract class Piece {
 		else { return 0; }
 	}
 
-	public static void fireLaser(int player) {
+	public static void peekLaser(int player) {
 		if (player == 1) {
-			fireLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
+				peekLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
 		}
 		else {
-			fireLaserRecursive(0,0,2);
+				peekLaserRecursive(0,0,2);
+		}
+		
+	}
+
+	public static void fireLaser(int player, boolean Gui) {
+		if (player == 1) {
+				fireLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
+		}
+		else {
+				fireLaserRecursive(0,0,2);
 		}
 	}
 
