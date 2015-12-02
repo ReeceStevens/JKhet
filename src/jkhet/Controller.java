@@ -7,7 +7,7 @@ public class Controller {
 	private static Scanner k;
 	
 	public static void main(String [] args) {
-		/*k = new Scanner(System.in);
+		k = new Scanner(System.in);
 		while(true) {
 		System.out.print("Begin JKhet with cli (1) or gui (2)? ");
 		String response = k.nextLine();
@@ -21,8 +21,7 @@ public class Controller {
 			default:
 				System.out.println("Invalid interface selection.");
 		}
-		}*/
-		gui();
+		}
 	}
 
 	/**

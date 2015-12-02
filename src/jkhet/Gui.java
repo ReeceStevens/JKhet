@@ -31,6 +31,7 @@ public class Gui extends Application {
 	private static VBox moveOptions = new VBox();
 	private static Text player = new Text();
 	private static Text winner = new Text();
+	private static Text help = new Text();
 	private static Button peekAtLaser = null; 
 	private static int window_height = 500;
 	private static boolean peeking = false;
@@ -51,7 +52,7 @@ public class Gui extends Application {
 		grid.add(title,0,row);
 		row ++;
 	
-		Label p1 = new Label("Player 1: ");
+		Label p1 = new Label("Blue: ");
 		grid.add(p1,0,row);
 		ObservableList<String> p1_options = FXCollections.observableArrayList(
 			"Human",
@@ -62,7 +63,7 @@ public class Gui extends Application {
 		grid.add(p1Options,1,row);
 		row ++;
 
-		Label p2 = new Label("Player 2: ");
+		Label p2 = new Label("Red: ");
 		grid.add(p2,0,row);
 		ObservableList<String> p2_options = FXCollections.observableArrayList(
 			"Human",
@@ -123,6 +124,38 @@ public class Gui extends Application {
 		Scene scene = new Scene(grid, 500,500);
 		primaryStage.setScene(scene);
 		primaryStage.show();
+	}
+
+	private static boolean inBounds(int x, int y) {
+		if ((x < 0) || (x >= Params.BOARD_WIDTH) || (y < 0) || (y >= Params.BOARD_HEIGHT)) {
+			return false;
+		}
+		else { return true; }
+	}
+
+	private static void highlightValidMoves(int x, int y) {
+		String img_url = "";
+		for (int i = -1; i < 2; i ++) {
+			for (int j = -1; j < 2; j ++) {
+				if ((Piece.isOccupied(x+i,y+j) == null) && inBounds(x+i,y+j)) { 	
+					if ((x+i == 0) || ((x+i == Params.BOARD_WIDTH-2) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1))) ){
+						img_url = "file:./jkhet/imgs/p2_space_valid_move.png";
+					}
+					else if ((x+i == Params.BOARD_WIDTH-1) || ((x+i == 1) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1)))) {
+						img_url = "file:./jkhet/imgs/p1_space_valid_move.png";
+					}
+					else {
+						img_url = "file:./jkhet/imgs/empty_space_valid_move.png";
+					}
+					Image img = new Image(img_url);
+					ImageView iv1 = new ImageView(img);
+					iv1.setFitWidth(min-1);
+					iv1.setPreserveRatio(true);
+					iv1.setSmooth(true);
+					board.add(iv1,x+i,y+j);
+				}
+			}
+		}
 	}
 
 	/**
@@ -247,8 +280,8 @@ public class Gui extends Application {
 			iv1.setSmooth(true);
 			board.add(iv1,a.x,a.y);
 		}
-		if (turn == 1) { player.setText("Player 1"); }
-		else { player.setText("Player 2"); }	
+		if (turn == 1) { player.setText("Blue Player"); }
+		else { player.setText("Red Player"); }	
 		if (laser != 0) {
 			Piece.peekLaser(laser);
 		}
@@ -260,8 +293,15 @@ public class Gui extends Application {
 	 */
 	private static void endGame(int win) {
 		turn = 0;
-		winner.setFill(Color.DARKGOLDENROD);
-		winner.setText("The winner is Player " + win + "!");	
+		help.setText("");
+		if (win == 1) { 
+			winner.setFill(Color.CYAN);
+			winner.setText("The winner is Blue Player!" );	
+		} else {
+			winner.setFill(Color.RED);
+			winner.setText("The winner is Red Player!");	
+
+		}
 		moveOptions.getChildren().clear();
 		Button playAgain = new Button("Play Again");
 		Button quit = new Button("Quit");
@@ -316,6 +356,7 @@ public class Gui extends Application {
 		int window_height = 500;
 		int window_width = 1000;
 		winner.setText("");
+		help.setText("Select a piece to move.");
 		turn = 1;
 		moveOptions.getChildren().clear();
 		game = new Stage();
@@ -325,12 +366,12 @@ public class Gui extends Application {
 		drawBoard(0);	
 		masterGrid.add(board,0,0);
 		controls.setHgap(10);
-		controls.setVgap(10);
+		controls.setVgap(20);
 		controls.setPadding(new Insets(25,25,25,25));
 		Label turnTitle = new Label("Turn: ");
 		controls.add(turnTitle,0,0);
-		if (turn == 1) { player.setText("Player 1"); }
-		else { player.setText("Player 2"); }	
+		if (turn == 1) { player.setText("Blue Player"); }
+		else { player.setText("Red Player"); }	
 		controls.add(player,1,0);
 		Text moveError = new Text();
 		peekAtLaser = new Button("Peek Laser");
@@ -338,6 +379,7 @@ public class Gui extends Application {
 		controls.add(peekAtLaser,1,1);
 		controls.add(moveError,0,2);
 		controls.add(winner,0,3);
+		controls.add(help,0,5);
 		masterGrid.add(controls,1,0);		
 
 		peekAtLaser.setOnAction(new EventHandler<ActionEvent>() {
@@ -349,7 +391,7 @@ public class Gui extends Application {
 					peeking = false;
 				} else {
 					drawBoard(turn);
-					peekAtLaser.setText("Done");
+					peekAtLaser.setText("Done Peeking");
 					peeking = true;
 				}
 			}
@@ -376,6 +418,7 @@ public class Gui extends Application {
 									turn = (turn == 1) ? 2 : 1;
 									moveOptions.getChildren().clear();
 									selected = null;
+									help.setText("Select a piece to move.");
 									drawBoard(0);
 									peeking = false;
 									peekAtLaser.setText("Peek Laser");
@@ -387,6 +430,12 @@ public class Gui extends Application {
 								} catch (InvalidMoveException err) {
 									moveError.setFill(Color.FIREBRICK);
 									moveError.setText("This is an invalid move!");
+									moveOptions.getChildren().clear();
+									selected = null;
+									help.setText("Select a piece to move.");
+									drawBoard(0);
+									peeking = false;
+									peekAtLaser.setText("Peek Laser");
 									return;
 								}
 							}
@@ -398,6 +447,102 @@ public class Gui extends Application {
 									return;
 								}
 								selected = p;
+								String img_url = "";
+			if (p instanceof Pyramid) {
+				if (p.player == 2) {
+					switch(p.rot) {
+						case 0:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot0_selected.png";
+							break;
+						case 1:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot1_selected.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot2_selected.png";
+							break;
+						case 3:
+							img_url = "file:jkhet/imgs/pyramid_p2_rot3_selected.png";
+					}
+				}
+				else if (p.player == 1) {
+					switch(p.rot) {
+						case 0:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot0_selected.png";
+							break;
+						case 1:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot1_selected.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot2_selected.png";
+							break;
+						case 3:
+							img_url = "file:jkhet/imgs/pyramid_p1_rot3_selected.png";
+					}
+				}
+			}
+			else if (p instanceof Djed) {
+				if (p.player == 1) {
+					switch(p.rot) {
+						case 0:
+						case 2:
+							img_url = "file:jkhet/imgs/djed_p1_rot0_selected.png";
+							break;
+						case 1:
+						case 3:
+							img_url = "file:jkhet/imgs/djed_p1_rot1_selected.png";
+							
+					}
+				}
+				else if (p.player == 2) {
+					switch(p.rot) {
+						case 0:
+						case 2:
+							img_url = "file:jkhet/imgs/djed_p2_rot0_selected.png";
+							break;
+						case 1:
+						case 3:
+							img_url = "file:jkhet/imgs/djed_p2_rot1_selected.png";
+							
+					}
+				}
+			}		
+			else if (p instanceof Obelisk) {
+				if (p.player == 1) {
+					switch(p.health) {
+						case 1:
+							img_url = "file:jkhet/imgs/obelisk_p1_h1_selected.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/obelisk_p1_h2_selected.png";
+							
+					}
+				}
+				else if (p.player == 2) {
+					switch(p.health) {
+						case 1:
+							img_url = "file:jkhet/imgs/obelisk_p2_h1_selected.png";
+							break;
+						case 2:
+							img_url = "file:jkhet/imgs/obelisk_p2_h2_selected.png";
+							
+					}
+				}
+			}	
+			else if (p instanceof Pharaoh) {
+				if (p.player == 1) { img_url = "file:jkhet/imgs/pharaoh_p1_selected.png";}
+				else if (p.player == 2) { img_url = "file:jkhet/imgs/pharaoh_p2_selected.png";}
+			}	
+
+								Image img = new Image(img_url);
+								ImageView iv1 = new ImageView(img);
+								iv1.setFitWidth(min-1);
+								iv1.setPreserveRatio(true);
+								iv1.setSmooth(true);
+								board.add(iv1,p.x,p.y);
+
+								highlightValidMoves(p.x,p.y);
+
+								help.setText("Click where you want to move,\nor rotate CW/CCW.");
 								Button rotate_cw = new Button("Rotate CW");
 								Button rotate_ccw = new Button("Rotate CCW");
 								rotate_cw.setOnAction(new EventHandler<ActionEvent>() {
