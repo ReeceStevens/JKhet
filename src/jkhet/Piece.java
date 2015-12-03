@@ -2,6 +2,7 @@ package jkhet;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,6 +11,8 @@ import javafx.scene.image.ImageView;
  * Master abstract class for board pieces.
  */
 public abstract class Piece {
+
+	private static HashSet<Integer[]> visited_locations = new HashSet<>();
 
 	/**
 	 * mod(a,b) -- helper function for a more intuitive modulo
@@ -410,12 +413,14 @@ public abstract class Piece {
 				}
 			}
 			}
+			if (!img_url.equals("")) {
 			Image img = new Image(img_url);
 			ImageView iv1 = new ImageView(img);
 			iv1.setFitWidth(Gui.min-1);
 			iv1.setPreserveRatio(true);
 			iv1.setSmooth(true);
 			Gui.board.add(iv1,x,y);
+			}
 
 			if (new_dir == -1) {
 				//a.health -= 1;
@@ -424,7 +429,25 @@ public abstract class Piece {
 			}
 		}
 		else {
+			Integer[] this_location = {x,y};
 			String img_url = "";
+			boolean wasHere = false;
+			for (Integer[] l : visited_locations) {
+				if ((l[0] == this_location[0]) && (l[1] == this_location[1])) {
+					wasHere = true;
+				}
+			}
+			if (wasHere) {
+				if ((x == 0) || ((x == Params.BOARD_WIDTH-2) && ((y == 0) || (y == Params.BOARD_HEIGHT-1))) ){
+					img_url = "file:jkhet/imgs/p2_space_laser_crossed.png";
+				}
+				else if ((x == Params.BOARD_WIDTH-1) || ((x == 1) && ((y == 0) || (y == Params.BOARD_HEIGHT-1)))) {
+					img_url = "file:jkhet/imgs/p1_space_laser_crossed.png";
+				}
+				else {
+					img_url = "file:jkhet/imgs/empty_space_laser_crossed.png";
+				}
+			} else {
 			if ((x == 0) || ((x == Params.BOARD_WIDTH-2) && ((y == 0) || (y == Params.BOARD_HEIGHT-1))) ){
 				if ((dir == 0) || (dir == 2)) {
 					img_url = "file:jkhet/imgs/p2_space_laser_down.png";
@@ -445,6 +468,8 @@ public abstract class Piece {
 				} else {
 					img_url = "file:jkhet/imgs/empty_space_laser_across.png";
 				}
+			}
+			visited_locations.add(this_location);	
 			}
 			Image img = new Image(img_url);
 			ImageView iv1 = new ImageView(img);
@@ -527,6 +552,7 @@ public abstract class Piece {
 	 * @param player 	The player whose laser is being viewed
 	 */
 	public static void peekLaser(int player) {
+		visited_locations.clear();
 		if (player == 1) {
 				peekLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
 		}

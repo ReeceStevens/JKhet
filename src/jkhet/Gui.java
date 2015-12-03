@@ -33,9 +33,10 @@ public class Gui extends Application {
 	private static Text winner = new Text();
 	private static Text help = new Text();
 	private static Button peekAtLaser = null; 
-	private static int window_height = 500;
+	private static int window_height = 480;
+	private static int window_width = 1000;
 	private static boolean peeking = false;
-	protected static int min = window_height / Params.BOARD_HEIGHT;
+	protected static int min = (window_height / Params.BOARD_HEIGHT)+1;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -462,8 +463,6 @@ public class Gui extends Application {
 	 * launchGame() -- open game window and begin playing
 	 */
 	public static void launchGame() {
-		int window_height = 500;
-		int window_width = 1000;
 		winner.setText("");
 		help.setText("Select a piece to move.");
 		turn = 1;
