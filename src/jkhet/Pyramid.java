@@ -1,5 +1,10 @@
 package jkhet;
 
+/**
+ * Class for Pyramids, pieces with one mirrored side; can reflect lasers, rotate, or move
+ * into any adjacent, legal, unoccupied space.
+ */
+
 public class Pyramid extends Piece {
 
 	// A rough approximation on the console of the two 

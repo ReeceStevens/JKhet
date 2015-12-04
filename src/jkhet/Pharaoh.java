@@ -1,5 +1,10 @@
 package jkhet;
 
+/**
+ * Class for the Pharaoh, which has no mirrored sides; if a player loses 
+ * their Pharaoh, the game is over.
+ */
+
 public class Pharaoh extends Piece {
 
 	// Void constructor

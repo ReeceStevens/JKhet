@@ -2,6 +2,10 @@ package jkhet;
 
 import java.util.Scanner;
 
+/**
+ * Controller class that launches the GUI or runs the command-line interface
+ */
+
 public class Controller {
 
 	private static Scanner k;

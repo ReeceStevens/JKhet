@@ -141,6 +141,28 @@ public class Gui extends Application {
 	}
 
 	/**
+	 * spaceValid(player) -- helper function to tell if a space is restricted for this player.
+	 * @param x 		X location of space
+	 * @param y 		Y location of space
+	 * @param player 	The player attempting the move
+	 * @return 			True if move is okay, false if not.
+	 */
+	private static boolean spaceValid(int x, int y, int player) {
+		if ((x == 0) || ((x == Params.BOARD_WIDTH-2) && ((y == 0) || (y == Params.BOARD_HEIGHT-1))) ){
+			// P2 space
+			return player == 2;
+		}
+		else if ((x == Params.BOARD_WIDTH-1) || ((x == 1) && ((y == 0) || (y == Params.BOARD_HEIGHT-1)))) {
+			// P1 space
+			return player == 1;
+		}
+		else {
+			return true;
+			// Empty space
+		}
+	}
+
+	/**
 	 * putPieceIcon(a,modifier) -- place the appropriate icon for a piece on the board.
 	 * @param a 	The piece to be displayed
 	 * @param modifier	0 for none, 1 for selected, 2 for laser (generic, or bottom for Djed), 3 for laser (top, 
@@ -332,7 +354,7 @@ public class Gui extends Application {
 					}
 				}
 				} else {
-				if ((Piece.isOccupied(x+i,y+j) == null) && inBounds(x+i,y+j)) { 	
+				if ((Piece.isOccupied(x+i,y+j) == null) && inBounds(x+i,y+j) && spaceValid(x+i,y+j,p.player)) { 	
 					putSpaceIcon(x+i,y+j,1);
 				}
 				}
@@ -434,11 +456,16 @@ public class Gui extends Application {
 		if (a != null) {
 			new_dir = a.reflectDirection(dir);
 			if (a instanceof Djed) {
-				for (Integer[] l : visited_locations) {
+				/*for (Integer[] l : visited_locations) {
 					if ((l[0] == this_location[0]) && (l[1] == this_location[1])) {
 						Gui.putPieceIcon(a,4);
 						wasHere = true;
 					}
+				}*/
+
+				if (visited_locations.contains(this_location)) {
+						Gui.putPieceIcon(a,4);
+						wasHere = true;
 				}
 				if (!wasHere) {
 				if (a.rot == 0 || a.rot == 2) {

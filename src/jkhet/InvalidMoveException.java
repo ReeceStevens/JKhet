@@ -1,5 +1,9 @@
 package jkhet;
 
+/**
+ * Error encompassing all illegal moves
+ */
+
 public class InvalidMoveException extends Exception {
 	
 	String move_error;

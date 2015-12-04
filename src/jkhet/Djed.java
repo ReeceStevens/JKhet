@@ -1,6 +1,9 @@
 package jkhet;
 
-// TODO: allow the djed only to swap places with another piece in its move
+/**
+ * Class for the Djed piece, a double-mirrored board piece that can
+ * swap locations with adjacent pieces.
+ */
 
 public class Djed extends Piece {
 	

@@ -1,6 +1,9 @@
 package jkhet;
 
-// TODO: Split the obelisk in a turn? figure out how to implement that. 
+/**
+ * Class for Obelisks, which contain no mirrored sides but can take two laser
+ * hits before dying.
+ */
 
 public class Obelisk extends Piece {
 

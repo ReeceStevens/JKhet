@@ -1,7 +1,7 @@
 package jkhet;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Master abstract class for board pieces.
@@ -305,7 +305,7 @@ public abstract class Piece {
 	 */
 	public abstract int reflectDirection(int laser_direction);
 
-	public static ArrayList<Piece> board_pieces = new ArrayList<>();
+	public static HashSet<Piece> board_pieces = new HashSet<>();
 
 	public enum SetupType {
 		CLASSIC,
