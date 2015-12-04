@@ -20,8 +20,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.util.HashSet;
 
+
+/**
+ * Class controlling all interface requirements of the game.
+ */
 public class Gui extends Application {
+	private static HashSet<Integer[]> visited_locations = new HashSet<>();
 	private static int turn = 1;
 	private static Piece selected = null;
 	public static Stage game = null; 
@@ -134,134 +140,200 @@ public class Gui extends Application {
 		else { return true; }
 	}
 
-	private static void highlightValidMoves(Piece p, int x, int y) {
+	/**
+	 * putPieceIcon(a,modifier) -- place the appropriate icon for a piece on the board.
+	 * @param a 	The piece to be displayed
+	 * @param modifier	0 for none, 1 for selected, 2 for laser (generic, or bottom for Djed), 3 for laser (top, 
+	 * 					only used for Djed), 4 for laser (both sides, only used for Djed)
+	 */
+	protected static void putPieceIcon(Piece a, int modifier) {
+			String img_url = "file:./jkhet/imgs/";
+			// Determine piece type
+			if (a instanceof Obelisk) { 
+				img_url += "obelisk_"; 
+				// Player
+				if (a.player == 1) { img_url += "p1_"; }
+				else { img_url += "p2_"; }
+				// State
+				if (a.health == 2) { img_url += "h2"; }
+				else { img_url += "h1"; }
+				// Modifier
+				switch(modifier) {
+					case 0:
+					case 2:
+						img_url += ".png";
+						break;
+					case 1:
+						img_url += "_selected.png";
+						break;
+					default:
+						img_url += ".png";
+				}	
+				
+			}
+			else if (a instanceof Pyramid) { 
+				img_url += "pyramid_";
+				// Player
+				if (a.player == 1) { img_url += "p1_"; }
+				else { img_url += "p2_"; }
+				// State
+				switch(a.rot) {
+					case 0:
+						img_url += "rot0";
+						break;
+					case 1:
+						img_url += "rot1";
+						break;
+					case 2:
+						img_url += "rot2";
+						break;
+					case 3:
+						img_url += "rot3";
+						break;
+				}
+				// Modifier
+				switch(modifier) {
+					case 0:
+						img_url += ".png";
+						break;
+					case 1:
+						img_url += "_selected.png";
+						break;
+					case 2:
+						img_url += "_laser.png";
+						break;
+					default:
+						img_url += ".png";
+				}	
+			}
+			else if (a instanceof Djed) { 
+				img_url += "djed_";
+				// Player
+				if (a.player == 1) { img_url += "p1_"; }
+				else { img_url += "p2_"; }
+				// State
+				switch(a.rot) {
+					case 0:
+					case 2:
+						img_url += "rot0";
+						break;
+					case 1:
+					case 3:
+						img_url += "rot1";
+						break;
+				}
+				// Modifier
+				switch(modifier) {
+					case 0:
+						img_url += ".png";
+						break;
+					case 1:
+						img_url += "_selected.png";
+						break;
+					case 2:
+						img_url += "_laser_bottom.png";
+						break;
+					case 3:
+						img_url += "_laser_top.png";
+						break;
+					case 4:
+						img_url += "_laser_both.png";
+						break;
+					default:
+						img_url += ".png";
+				}	
+			}
+			else if (a instanceof Pharaoh) { 
+				img_url += "Pharaoh_";
+				// Player
+				if (a.player == 1) { img_url += "p1"; }
+				else { img_url += "p2"; }
+				// Modifier
+				switch(modifier) {
+					case 0:
+						img_url += ".png";
+						break;
+					case 1:
+						img_url += "_selected.png";
+						break;
+					default:
+						img_url += ".png";
+				}
+		   	}
+			else {return;}
+
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			board.add(iv1,a.x,a.y);
+		}
+
+	/**
+	 * putSpaceIcon(x,y,mod_state) -- place the proper empty space icon on the board
+	 * @param x 	X coordinate of space
+	 * @param y 	Y coordinate of space
+	 * @param mod_state 	0 if no mod, 1 if selected, 2 if laser down, 3 if laser across, 4 if laser crossed
+	 */
+	protected static void putSpaceIcon(int x, int y, int mod_state) {
 		String img_url = "";
+		if (inBounds(x,y)) { 	
+			if ((x == 0) || ((x == Params.BOARD_WIDTH-2) && ((y == 0) || (y == Params.BOARD_HEIGHT-1))) ){
+				img_url += "file:./jkhet/imgs/p2_space";
+				//img_url += "file:./jkhet/imgs/p2_space_valid_move.png";
+			}
+			else if ((x == Params.BOARD_WIDTH-1) || ((x == 1) && ((y == 0) || (y == Params.BOARD_HEIGHT-1)))) {
+				img_url += "file:./jkhet/imgs/p1_space";
+				//img_url = "file:./jkhet/imgs/p1_space_valid_move.png";
+			}
+			else {
+				img_url += "file:./jkhet/imgs/empty_space";
+				//img_url = "file:./jkhet/imgs/empty_space_valid_move.png";
+			}
+			switch (mod_state) {
+				case 0: 
+					img_url += ".png";
+					break;
+				case 1:
+					img_url += "_valid_move.png";
+					break;
+				case 2:
+					img_url += "_laser_down.png";
+					break;
+				case 3:
+					img_url += "_laser_across.png";
+					break;
+				case 4: 
+					img_url += "_laser_crossed.png";
+					break;
+				default:
+					img_url += ".png";
+			}
+			Image img = new Image(img_url);
+			ImageView iv1 = new ImageView(img);
+			iv1.setFitWidth(min-1);
+			iv1.setPreserveRatio(true);
+			iv1.setSmooth(true);
+			board.add(iv1,x,y);
+		}
+	}
+
+	private static void highlightValidMoves(Piece p, int x, int y) {
 		for (int i = -1; i < 2; i ++) {
 			for (int j = -1; j < 2; j ++) {
 				if (p instanceof Djed) {
 				if (inBounds(x+i,y+j)) { 	
 					Piece a = Piece.isOccupied(x+i,y+j);
 					if (a == null) {
-					if ((x+i == 0) || ((x+i == Params.BOARD_WIDTH-2) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1))) ){
-						img_url = "file:./jkhet/imgs/p2_space_valid_move.png";
-					}
-					else if ((x+i == Params.BOARD_WIDTH-1) || ((x+i == 1) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1)))) {
-						img_url = "file:./jkhet/imgs/p1_space_valid_move.png";
-					}
-					else {
-						img_url = "file:./jkhet/imgs/empty_space_valid_move.png";
-					}
+						putSpaceIcon(x+i,y+j,1);
 					} else {
-						
-			if (a instanceof Pyramid) {
-				if (a.player == 2) {
-					switch(a.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot0_selected.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot2_selected.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot3_selected.png";
+						putPieceIcon(a,1);
 					}
-				}
-				else if (a.player == 1) {
-					switch(a.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot0_selected.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot2_selected.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot3_selected.png";
-					}
-				}
-			}
-			else if (a instanceof Djed) {
-				if (a.player == 1) {
-					switch(a.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p1_rot0_selected.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p1_rot1_selected.png";
-							
-					}
-				}
-				else if (a.player == 2) {
-					switch(a.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p2_rot0_selected.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p2_rot1_selected.png";
-							
-					}
-				}
-			}		
-			else if (a instanceof Obelisk) {
-				if (a.player == 1) {
-					switch(a.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p1_h1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p1_h2_selected.png";
-							
-					}
-				}
-				else if (a.player == 2) {
-					switch(a.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p2_h1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p2_h2_selected.png";
-							
-					}
-				}
-			}	
-			else if (a instanceof Pharaoh) {
-				if (a.player == 1) { img_url = "file:jkhet/imgs/pharaoh_p1_selected.png";}
-				else if (a.player == 2) { img_url = "file:jkhet/imgs/pharaoh_p2_selected.png";}
-			}	
-					}
-					Image img = new Image(img_url);
-					ImageView iv1 = new ImageView(img);
-					iv1.setFitWidth(min-1);
-					iv1.setPreserveRatio(true);
-					iv1.setSmooth(true);
-					board.add(iv1,x+i,y+j);
 				}
 				} else {
 				if ((Piece.isOccupied(x+i,y+j) == null) && inBounds(x+i,y+j)) { 	
-					if ((x+i == 0) || ((x+i == Params.BOARD_WIDTH-2) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1))) ){
-						img_url = "file:./jkhet/imgs/p2_space_valid_move.png";
-					}
-					else if ((x+i == Params.BOARD_WIDTH-1) || ((x+i == 1) && ((y+j == 0) || (y+j == Params.BOARD_HEIGHT-1)))) {
-						img_url = "file:./jkhet/imgs/p1_space_valid_move.png";
-					}
-					else {
-						img_url = "file:./jkhet/imgs/empty_space_valid_move.png";
-					}
-					Image img = new Image(img_url);
-					ImageView iv1 = new ImageView(img);
-					iv1.setFitWidth(min-1);
-					iv1.setPreserveRatio(true);
-					iv1.setSmooth(true);
-					board.add(iv1,x+i,y+j);
+					putSpaceIcon(x+i,y+j,1);
 				}
 				}
 			}
@@ -277,123 +349,17 @@ public class Gui extends Application {
 		board.getChildren().clear();
 		for (int i = 0; i < Params.BOARD_WIDTH; i += 1) {
 			for (int j = 0; j < Params.BOARD_HEIGHT; j += 1) {
-			String img_url = "";
-			if ((i == 0) || ((i == Params.BOARD_WIDTH-2) && ((j == 0) || (j == Params.BOARD_HEIGHT-1))) ){
-				img_url = "file:./jkhet/imgs/p2_space.png";
-			}
-			else if ((i == Params.BOARD_WIDTH-1) || ((i == 1) && ((j == 0) || (j == Params.BOARD_HEIGHT-1)))) {
-				img_url = "file:./jkhet/imgs/p1_space.png";
-			}
-			else {
-				img_url = "file:./jkhet/imgs/empty_space.png";
-			}
-			Image img = new Image(img_url);
-			ImageView iv1 = new ImageView(img);
-			iv1.setFitWidth(min-1);
-			iv1.setPreserveRatio(true);
-			iv1.setSmooth(true);
-			board.add(iv1,i,j);
+				putSpaceIcon(i,j,0);
 			}
 		}
+		// Draw all Pieces.
 		for (Piece a : Piece.board_pieces) {
-			// Draw all Pieces.
-			String img_url = "";
-			if (a instanceof Pyramid) {
-				if (a.player == 2) {
-					switch(a.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot0.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot1.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot2.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot3.png";
-					}
-				}
-				else if (a.player == 1) {
-					switch(a.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot0.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot1.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot2.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot3.png";
-					}
-				}
-			}
-			else if (a instanceof Djed) {
-				if (a.player == 1) {
-					switch(a.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p1_rot0.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p1_rot1.png";
-							
-					}
-				}
-				else if (a.player == 2) {
-					switch(a.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p2_rot0.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p2_rot1.png";
-							
-					}
-				}
-			}		
-			else if (a instanceof Obelisk) {
-				if (a.player == 1) {
-					switch(a.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p1_h1.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p1_h2.png";
-							
-					}
-				}
-				else if (a.player == 2) {
-					switch(a.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p2_h1.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p2_h2.png";
-							
-					}
-				}
-			}	
-			else if (a instanceof Pharaoh) {
-				if (a.player == 1) { img_url = "file:jkhet/imgs/pharaoh_p1.png";}
-				else if (a.player == 2) { img_url = "file:jkhet/imgs/pharaoh_p2.png";}
-			}	
-			else {continue; }
-			Image img = new Image(img_url);
-			ImageView iv1 = new ImageView(img);
-			iv1.setFitWidth(min-1);
-			iv1.setPreserveRatio(true);
-			iv1.setSmooth(true);
-			board.add(iv1,a.x,a.y);
+			putPieceIcon(a,0);
 		}
 		if (turn == 1) { player.setText("Blue Player"); }
 		else { player.setText("Red Player"); }	
 		if (laser != 0) {
-			Piece.peekLaser(laser);
+			peekLaser(laser);
 		}
 	}
 	
@@ -442,22 +408,106 @@ public class Gui extends Application {
 	 * @param turn 		The player launching the laser
 	 */
 	private static void boardLaser(int turn) {
-		Piece.fireLaser(turn, true);
-		//moveOptions.getChildren().clear();
-		//Button cont = new Button("Continue");
-		//moveOptions.getChildren().add(cont);
-		/*while(!cont.isPressed()){
-			System.out.println("Waiting...");	
-		}*/
-		/*cont.setOnAction(new EventHandler<ActionEvent>() {
-			@Override		
-			public void handle(ActionEvent event) {
-				moveOptions.getChildren().clear();
-				drawBoard(0);
-				return;
+		Piece.fireLaser(turn);
+	}
+
+	/**
+	 * peekLaserRecursive(x,y,dir) -- peek at the laser without actually firing (recursive call)
+	 * @param x 	X location of laser
+	 * @param y 	Y location of laser
+	 * @param dir 	Direction the laser is heading
+	 * @return 		-1 if impact, 0 if error
+	 */
+	private static int peekLaserRecursive(int x, int y, int dir) {
+		Integer[] this_location = {x,y};
+		boolean wasHere = false;
+		// Base case 1: Hit a wall
+		if ((x < 0) || (x >= Params.BOARD_WIDTH)) { 
+				return -1;
+	   	}
+		if ((y < 0) || (y >= Params.BOARD_HEIGHT)) { 
+				return -1;
+	   	}
+		// Base case 2: Hit a piece in a non-mirror location
+		Piece a = Piece.isOccupied(x,y);
+		int new_dir = -1;
+		if (a != null) {
+			new_dir = a.reflectDirection(dir);
+			if (a instanceof Djed) {
+				for (Integer[] l : visited_locations) {
+					if ((l[0] == this_location[0]) && (l[1] == this_location[1])) {
+						Gui.putPieceIcon(a,4);
+						wasHere = true;
+					}
+				}
+				if (!wasHere) {
+				if (a.rot == 0 || a.rot == 2) {
+					if (dir == 3 || dir == 2) { Gui.putPieceIcon(a,3); }
+					else { Gui.putPieceIcon(a,2); }
+				} else {
+					if (dir == 1 || dir == 2) { Gui.putPieceIcon(a,3); }
+					else { Gui.putPieceIcon(a,2); }
+				}
+				visited_locations.add(this_location);
+				}
 			}
-		});*/
-	}	
+			else if (new_dir == -1) {
+				return -1;
+			}
+			else {
+				Gui.putPieceIcon(a,2);
+			}
+		}
+		else {
+			for (Integer[] l : visited_locations) {
+				if ((l[0] == this_location[0]) && (l[1] == this_location[1])) {
+					wasHere = true;
+					Gui.putSpaceIcon(x,y,4);
+				}
+			}
+			if (!wasHere) {
+				visited_locations.add(this_location);
+				if ((dir == 0) || (dir == 2)) {
+					Gui.putSpaceIcon(x,y,2);
+				} else { 
+					Gui.putSpaceIcon(x,y,3);
+				}
+			}
+		}		
+		// Recursive step: find next laser location
+		if (new_dir == -1) { new_dir = dir; }
+		int ret = 0;
+		switch(new_dir){
+			case 0:
+				ret = peekLaserRecursive(x,y-1,new_dir);
+				break;
+			case 1:
+				ret = peekLaserRecursive(x+1,y,new_dir);
+				break;
+			case 2:
+				ret = peekLaserRecursive(x,y+1,new_dir);
+				break;
+			case 3:
+				ret = peekLaserRecursive(x-1,y,new_dir);
+				break;
+		}
+		if (ret == -1) { return -1; }
+		else { return 0; }
+	}
+
+	/**
+	 * peekLaser(player) -- look at a player's laser without actually firing
+	 * @param player 	The player whose laser is being viewed
+	 */
+	public static void peekLaser(int player) {
+		visited_locations.clear();
+		if (player == 1) {
+				peekLaserRecursive(Params.BOARD_WIDTH-1, Params.BOARD_HEIGHT-1, 0);
+		}
+		else {
+				peekLaserRecursive(0,0,2);
+		}
+	}
 
 	/**
 	 * launchGame() -- open game window and begin playing
@@ -493,6 +543,10 @@ public class Gui extends Application {
 		peekAtLaser.setOnAction(new EventHandler<ActionEvent>() {
 			@Override		
 			public void handle(ActionEvent event) {
+				selected = null;
+				help.setText("Select a piece to move.");
+				moveOptions.getChildren().clear();
+				moveError.setText("");
 				if (peeking) {
 					drawBoard(0);
 					peekAtLaser.setText("Peek Laser");
@@ -555,99 +609,12 @@ public class Gui extends Application {
 									return;
 								}
 								selected = p;
-								String img_url = "";
-			if (p instanceof Pyramid) {
-				if (p.player == 2) {
-					switch(p.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot0_selected.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot2_selected.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p2_rot3_selected.png";
-					}
-				}
-				else if (p.player == 1) {
-					switch(p.rot) {
-						case 0:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot0_selected.png";
-							break;
-						case 1:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot2_selected.png";
-							break;
-						case 3:
-							img_url = "file:jkhet/imgs/pyramid_p1_rot3_selected.png";
-					}
-				}
-			}
-			else if (p instanceof Djed) {
-				if (p.player == 1) {
-					switch(p.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p1_rot0_selected.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p1_rot1_selected.png";
 							
-					}
-				}
-				else if (p.player == 2) {
-					switch(p.rot) {
-						case 0:
-						case 2:
-							img_url = "file:jkhet/imgs/djed_p2_rot0_selected.png";
-							break;
-						case 1:
-						case 3:
-							img_url = "file:jkhet/imgs/djed_p2_rot1_selected.png";
-							
-					}
-				}
-			}		
-			else if (p instanceof Obelisk) {
-				if (p.player == 1) {
-					switch(p.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p1_h1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p1_h2_selected.png";
-							
-					}
-				}
-				else if (p.player == 2) {
-					switch(p.health) {
-						case 1:
-							img_url = "file:jkhet/imgs/obelisk_p2_h1_selected.png";
-							break;
-						case 2:
-							img_url = "file:jkhet/imgs/obelisk_p2_h2_selected.png";
-							
-					}
-				}
-			}	
-			else if (p instanceof Pharaoh) {
-				if (p.player == 1) { img_url = "file:jkhet/imgs/pharaoh_p1_selected.png";}
-				else if (p.player == 2) { img_url = "file:jkhet/imgs/pharaoh_p2_selected.png";}
-			}	
-
-								Image img = new Image(img_url);
-								ImageView iv1 = new ImageView(img);
-								iv1.setFitWidth(min-1);
-								iv1.setPreserveRatio(true);
-								iv1.setSmooth(true);
-								board.add(iv1,p.x,p.y);
-
+								// Cancel the laser preview and draw the possible moves	
+								peeking = false;
+								peekAtLaser.setText("Peek Laser");
+								//drawBoard(0);
+								putPieceIcon(p,1);
 								highlightValidMoves(p,p.x,p.y);
 
 								help.setText("Click where you want to move,\nor rotate CW/CCW.");
@@ -717,7 +684,6 @@ public class Gui extends Application {
 							}
 						}
 					}
-				//}
 			}
 		});	
 			
