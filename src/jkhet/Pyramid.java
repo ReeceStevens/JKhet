@@ -67,8 +67,6 @@ public class Pyramid extends Piece {
 			return Piece.mod(rot , 4);
 		}
 		else {
-			// Impacted by laser on non-mirrored side. Piece is dead.
-			board_pieces.remove(this);
 			return -1;
 		}
 	}

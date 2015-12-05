@@ -1,5 +1,6 @@
 package jkhet;
 
+import java.io.InputStream;
 import java.util.Scanner;
 
 /**
@@ -17,7 +18,7 @@ public class Controller {
 		String response = k.nextLine();
 		switch(response) {
 			case "1":
-				cli();
+				cli(System.in);
 				return;
 			case "2":
 				gui();
@@ -38,8 +39,8 @@ public class Controller {
 	/**
 	 * cli() -- Initializes command line interface
 	 */	
-	public static void cli() {
-		//Scanner k = new Scanner(System.in);
+	public static void cli(InputStream in) {
+		Scanner k = new Scanner(in);
 		while(true) {
 		System.out.println("Welcome to JKhet!");
 		while(true) {
