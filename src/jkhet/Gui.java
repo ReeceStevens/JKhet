@@ -482,6 +482,7 @@ public class Gui extends Application {
 				return -1;
 			}
 			else {
+				visited_locations.add(this_location);
 				Gui.putPieceIcon(a,2);
 			}
 		}
@@ -641,6 +642,15 @@ public class Gui extends Application {
 								peeking = false;
 								peekAtLaser.setText("Peek Laser");
 								//drawBoard(0);
+								for (Integer[] l : visited_locations) {
+									Piece a = Piece.isOccupied(l[0],l[1]);
+									if (a != null) {
+										putPieceIcon(a,0);
+									}
+									else {
+										putSpaceIcon(l[0],l[1],0);
+									}
+								}
 								putPieceIcon(p,1);
 								highlightValidMoves(p,p.x,p.y);
 

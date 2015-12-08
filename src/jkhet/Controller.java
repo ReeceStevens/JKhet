@@ -38,6 +38,7 @@ public class Controller {
 
 	/**
 	 * cli() -- Initializes command line interface
+	 * @param in 	Input stream for receiving commands
 	 */	
 	public static void cli(InputStream in) {
 		Scanner k = new Scanner(in);
